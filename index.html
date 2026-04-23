@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TÚ TRINH NGUYỄN - Quản Lý Tài Chính</title>
+    
+    <link rel="icon" href="./logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="./logo.png">
+    
+    <link rel="manifest" href="./manifest.json">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- HỆ MÀU & BIẾN MẶC ĐỊNH KIỂU iOS --- */
+        :root {
+            --ios-bg: #F2F2F7;
+            --ios-card: #FFFFFF;
+            --ios-blue: #007AFF;
+            --ios-green: #34C759;
+            --ios-red: #FF3B30;
+            --ios-orange: #FF9500; /* Thêm màu cam cho Ghi chú */
+            --ios-gray: #8E8E93;
+            --ios-light-gray: #E5E5EA;
+            --ios-text: #1C1C1E;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-md: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        body, input, select, button, textarea, details, summary { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { background-color: var(--ios-bg); color: var(--ios-text); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden;}
+        .app-container { max-width: 480px; margin: 0 auto; background: var(--ios-bg); min-height: 100vh; position: relative; padding-bottom: 60px; overflow-x: hidden;}
+        
+        /* HEADER CÓ NÚT ĐĂNG XUẤT */
+        .header { background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); color: var(--ios-text); padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .header-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: var(--ios-blue); flex: 1; text-align: center; } 
+        .btn-logout { background: rgba(255, 59, 48, 0.1); color: var(--ios-red); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; padding: 0;}
+        .btn-logout:active { transform: scale(0.85); background: rgba(255, 59, 48, 0.2); }
+
+        /* THANH BẢN QUYỀN (FOOTER) TRONG SUỐT VÀ KHÔNG BẤM ĐƯỢC */
+        .footer-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; padding: 12px 0; background: rgba(242, 242, 247, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); color: var(--ios-gray); font-size: 11px; text-align: center; pointer-events: none; border-top: 1px solid rgba(0,0,0,0.05); z-index: 99; font-weight: 500; }
+
+        /* MÀN HÌNH ĐĂNG NHẬP MỚI */
+        #login-screen { padding: 60px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; animation: fadeSmooth 0.8s ease; }
+        
+        .app-logo { width: 140px; height: 140px; object-fit: contain; margin-bottom: 15px; animation: floatLogo 3s ease-in-out infinite; background: transparent;}
+        @keyframes floatLogo { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        
+        #login-screen h1 { color: var(--ios-blue); font-size: 32px; font-weight: 800; margin-bottom: 5px; }
+        #login-msg { color: var(--ios-gray); margin-bottom: 40px; font-size: 15px; font-style: italic;}
+
+        /* NÚT ĐĂNG NHẬP GOOGLE */
+        .btn-google { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; max-width: 320px; padding: 16px; background: var(--ios-card); color: var(--ios-text); border: 1px solid var(--ios-light-gray); border-radius: 16px; font-size: 17px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .btn-google:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.05); background: #f9f9f9;}
+        .google-icon { width: 24px; height: 24px; }
+
+        #main-app { display: none; }
+        
+        /* TABS & ANIMATIONS CHUYỂN TRANG MƯỢT MÀ */
+        .tab-menu { display: flex; background: var(--ios-light-gray); border-radius: 14px; margin: 15px 20px 25px 20px; padding: 4px; position: relative;}
+        .tab-btn { flex: 1; padding: 12px; text-align: center; color: var(--ios-text); cursor: pointer; background: transparent; border: none; font-size: 14px; font-weight: 600; outline: none; transition: all 0.4s ease; border-radius: 10px; z-index: 2;}
+        .tab-btn.active { background: var(--ios-card); box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: var(--ios-blue); transform: scale(1.02);}
+        
+        .tab-content { display: none; padding: 0 20px; } 
+        .tab-content.active { display: block; animation: slideFadeTab 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes slideFadeTab { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
+        
+        /* INPUTS, FORMS & TEXTAREA */
+        .form-group { margin-bottom: 16px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--ios-gray); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 5px;}
+        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 16px; border: 1px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; background: var(--ios-card); box-shadow: var(--shadow-sm); color: var(--ios-text); outline: none; transition: all 0.3s ease; }
+        textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+        input:focus, select:focus, textarea:focus { border: 1px solid var(--ios-blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1); transform: scale(1.01);}
+
+        /* BUTTONS CÓ HIỆU ỨNG NHÚN CHẬM */
+        button.btn-save { width: 100%; padding: 18px; background: var(--ios-blue); color: white; border: none; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 16px rgba(0, 122, 255, 0.25); transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        button.btn-save:active { transform: scale(0.94); box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15); opacity: 0.9; }
+
+        details { background: var(--ios-card); padding: 16px; border-radius: 16px; margin-bottom: 20px; box-shadow: var(--shadow-sm); transition: all 0.3s ease; }
+        details:active summary { opacity: 0.6; }
+        summary { font-weight: 700; cursor: pointer; color: var(--ios-blue); outline: none; font-size: 16px; list-style: none; transition: opacity 0.3s;}
+        summary::-webkit-details-marker { display: none; }
+        
+        .result-box { background: var(--ios-card); padding: 20px; border-radius: 20px; margin-top: 25px; box-shadow: var(--shadow-md); transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .result-box:active { transform: scale(0.97); background: #fafafa; }
+        .result-box p { margin: 10px 0; display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: #333;}
+        .result-box p span:last-child { font-weight: 600; } 
+        
+        .highlight { font-size: 16px; font-weight: 800 !important; color: var(--ios-text); border-top: 1px solid var(--ios-light-gray); padding-top: 15px; margin-top: 15px; white-space: nowrap; }
+        .highlight span:last-child { color: var(--ios-blue); font-size: 20px;}
+        
+        .ot-highlight { font-size: 15px; font-weight: 700; color: var(--ios-blue); padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--ios-light-gray); white-space: nowrap; }
+        .ot-highlight span:last-child { font-weight: 900; font-size: 18px; }
+
+        .chi-phi { color: var(--ios-red) !important; }
+        .thu-nhap { color: var(--ios-green) !important; }
+
+        /* LỊCH SỬ VÀ GHI CHÚ */
+        .section-title { margin-top: 40px; margin-bottom: 15px; font-size: 20px; font-weight: 800; color: var(--ios-text); padding-left: 5px; letter-spacing: -0.5px;}
+        .history-list { list-style-type: none; padding: 0; margin-top: 15px; }
+        
+        .history-list li { background: var(--ios-card); padding: 18px; margin-bottom: 15px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; box-shadow: var(--shadow-sm); transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); animation: fadeSmooth 0.5s ease; cursor: pointer; }
+        .history-list li:active { transform: scale(0.96); background: #f5f5f7; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        @keyframes fadeSmooth { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .ngay-hien-thi { font-weight: 800; font-size: 15px; color: var(--ios-blue); display: inline-block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+
+        /* ĐẶC TRƯNG GHI CHÚ */
+        .note-preview { color: var(--ios-gray); font-size: 14px; margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; word-break: break-word;}
+        .note-date { font-size: 11px; color: #A2A2A7; margin-top: 8px; font-weight: 500;}
+
+        .btn-dien-nhanh { background: var(--ios-light-gray); color: var(--ios-blue); border: none; padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 700; transition: all 0.3s; }
+        .btn-dien-nhanh:active { transform: scale(0.9); background: #d1d1d6; }
+        
+        .btn-action-small { background: var(--ios-blue); color: white; border: none; padding: 12px; border-radius: 14px; font-size: 14px; cursor: pointer; font-weight: 700; transition: all 0.3s;}
+        .btn-action-small:active { transform: scale(0.92); opacity: 0.9;}
+        .btn-delete-cat { background: var(--ios-light-gray); color: var(--ios-red); border: none; padding: 12px; border-radius: 14px; font-size: 14px; cursor: pointer; font-weight: 700; transition: all 0.3s;}
+        .btn-delete-cat:active { transform: scale(0.92); }
+        .btn-delete-small { background: #FFE5E5; color: var(--ios-red); border: none; padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 700; margin-left: 10px; transition: all 0.3s;}
+        .btn-delete-small:active { transform: scale(0.9); background: #FFCACA;}
+
+        /* Tìm kiếm & Phân trang */
+        .search-box { display: flex; gap: 10px; margin-top: 15px; }
+        .search-box input { flex: 1; border-radius: 14px; }
+        .search-box button { background: var(--ios-light-gray); color: var(--ios-text); font-weight: 700; border: none; padding: 12px 18px; border-radius: 14px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
+        .search-box button:active { transform: scale(0.95); }
+        
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap;}
+        .page-btn { padding: 10px 16px; border: none; background: var(--ios-card); color: var(--ios-text); border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: var(--shadow-sm); transition: all 0.3s;}
+        .page-btn:active { transform: scale(0.9); }
+        .page-btn.active { background: var(--ios-blue); color: white; transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,122,255,0.3);}
+
+        .khu-vuc-thu { background: linear-gradient(145deg, #F4FBF5, #FFFFFF); padding: 25px 20px; border-radius: 24px; margin-bottom: 25px; border: 1px solid rgba(52, 199, 89, 0.15); box-shadow: var(--shadow-sm); }
+        .khu-vuc-chi { background: linear-gradient(145deg, #FFF4F4, #FFFFFF); padding: 25px 20px; border-radius: 24px; border: 1px solid rgba(255, 59, 48, 0.15); box-shadow: var(--shadow-sm); }
+
+        /* MODAL MƯỢT MÀ */
+        #custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.4s ease; opacity: 0;}
+        #custom-modal { background: rgba(255, 255, 255, 0.9); width: 85%; max-width: 340px; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.25); transform: scale(0.8); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
+        #custom-modal-overlay.show { display: flex; opacity: 1; }
+        #custom-modal-overlay.show #custom-modal { transform: scale(1); opacity: 1; }
+        
+        #custom-modal-title { padding: 25px 20px 10px 20px; font-size: 20px; font-weight: 800; text-align: center; color: var(--ios-text); letter-spacing: -0.5px;}
+        #custom-modal-body { padding: 10px 20px 25px 20px; text-align: center; font-size: 15px; color: #444; line-height: 1.5; }
+        #custom-modal-input-container { margin-top: 18px; }
+        #custom-modal-input-container input { text-align: center; background: white; border: 1px solid var(--ios-light-gray); font-weight: 600; }
+        #custom-modal-buttons { display: flex; border-top: 1px solid rgba(0,0,0,0.08); }
+        #custom-modal-buttons button { flex: 1; padding: 18px; border: none; background: transparent; font-size: 17px; cursor: pointer; outline: none; transition: background 0.2s;}
+        #custom-modal-btn-cancel { color: var(--ios-red); border-right: 1px solid rgba(0,0,0,0.08); font-weight: 500;}
+        #custom-modal-btn-ok { color: var(--ios-blue); font-weight: 700;}
+        #custom-modal-buttons button:active { background: rgba(0,0,0,0.05); }
+
+        /* Loader Mượt */
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--ios-blue); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div id="login-screen">
+        <img src="./logo.png" alt="Logo" class="app-logo" onerror="this.style.display='none'">
+        
+        <h1>TÚ TRINH NGUYỄN</h1>
+        <p id="login-msg">Quản Lý Tài Chính Một Lần Vuốt Chạm</p>
+        
+        <div class="loader" id="login-loader"></div>
+
+        <button class="btn-google" id="btn-login-google" onclick="xuLyDangNhapGoogle()">
+            <svg class="google-icon" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Tiếp tục với Google
+        </button>
+        <p style="font-size: 13px; color: var(--ios-gray); margin-top: 20px; max-width: 300px; line-height: 1.4;">Đăng nhập để tự động lưu và đồng bộ dữ liệu của bạn trên đám mây.</p>
+    </div>
+
+    <div id="main-app">
+        <div class="header">
+            <div style="width: 36px;"></div> 
+            <span class="header-title">TÚ TRINH NGUYỄN</span>
+            <button class="btn-logout" onclick="dangXuatTaikhoan()" title="Đăng xuất">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+            </button>
+        </div>
+        
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="chuyenTab('tab-luong', this)">Lương</button>
+            <button class="tab-btn" onclick="chuyenTab('tab-hui', this)">Hụi</button>
+            <button class="tab-btn" onclick="chuyenTab('tab-thuchi', this)">Thu-Chi</button>
+            <button class="tab-btn" onclick="chuyenTab('tab-ghichu', this)">Ghi chú</button>
+        </div>
+
+        <div id="tab-luong" class="tab-content active">
+            <details>
+                <summary>Cài đặt Lương Cơ Bản</summary>
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Lương cơ bản (VNĐ)</label>
+                    <input type="text" inputmode="numeric" id="luongCoBan" value="5.660.000" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()" style="border: 1px solid var(--ios-light-gray);">
+                </div>
+            </details>
+
+            <div class="form-group"><label>Chọn Ngày</label><input type="date" id="ngayOT"></div>
+            <div class="form-group">
+                <label>Số giờ tăng ca hôm nay</label>
+                <select id="soGioOT" onchange="tinhToanTrucTiep()">
+                    <option value="0">0 giờ (Không tăng ca)</option>
+                    <option value="0.5">0.5 giờ</option>
+                    <option value="1">1.0 giờ</option><option value="1.5">1.5 giờ</option>
+                    <option value="2">2.0 giờ</option><option value="2.5">2.5 giờ</option>
+                    <option value="3">3.0 giờ</option><option value="3.5">3.5 giờ</option>
+                    <option value="4">4.0 giờ</option>
+                </select>
+            </div>
+            <button class="btn-save" onclick="luuNgayOT()">Lưu Tăng Ca Ngày Này</button>
+
+            <div class="result-box">
+                <p><span>Lương cơ bản</span> <span id="hienLCB">0</span></p>
+                <p><span>Trừ BHXH (8%)</span> <span id="hienBHXH">0</span></p>
+                <p><span>Trừ BHYT (1.5%)</span> <span id="hienBHYT">0</span></p>
+                <p><span>Trừ BHTN (1%)</span> <span id="hienBHTN">0</span></p>
+                <p><span>Trừ Công đoàn</span> <span>-25.500 ₫</span></p>
+                <p><span>Phụ cấp (Xăng, Trọ, CC)</span> <span>+700.000 ₫</span></p>
+                <p class="ot-highlight"><span>Tổng tiền Tăng Ca</span> <span id="hienTongTienOT">0 ₫</span></p>
+                <p class="highlight"><span>TỔNG THỰC LÃNH</span> <span id="hienThucLanh">0 ₫</span></p>
+            </div>
+
+            <h3 class="section-title">Lịch Sử Tăng Ca</h3>
+            <div class="search-box">
+                <input type="date" id="timKiemNgayOT" onchange="trangHienTaiOT=1; hienThiDanhSachOT()">
+                <button onclick="document.getElementById('timKiemNgayOT').value=''; trangHienTaiOT=1; hienThiDanhSachOT()">Xóa Lọc</button>
+            </div>
+            <ul class="history-list" id="danhSachOT"></ul>
+            <div class="pagination" id="phanTrangOT"></div>
+        </div>
+
+        <div id="tab-hui" class="tab-content">
+            <div id="nhacNhoHui" style="background:#FFF4F4; color:var(--ios-red); padding:15px; border-radius:16px; margin-bottom:20px; display:none; font-weight: 600; text-align: center;">
+                ⚠️ Sắp đến ngày đóng hụi (trong 5 ngày tới)!
+            </div>
+
+            <div id="formNhapHui">
+                <div class="form-group"><label>Tên chưng hụi</label><input type="text" id="tenChungHui" placeholder="Ví dụ: Hụi dây 2 triệu"></div>
+                <div class="form-group"><label>Chủ hụi (Người quản lý)</label><input type="text" id="chuHui" placeholder="Ví dụ: Dì Ba, Chị Tư..."></div>
+                <div class="form-group"><label>Ngày đóng</label><input type="date" id="ngayDongHui"></div>
+                <div class="form-group"><label>Số tiền đóng (VNĐ)</label><input type="text" inputmode="numeric" id="tienDongHui" placeholder="Ví dụ: 2.000.000" oninput="dinhDangNhapLieu(this)"></div>
+                <button class="btn-save" onclick="luuTienHui()">Lưu Thông Tin Hụi</button>
+            </div>
+
+            <div class="result-box"><p class="highlight" style="border:none; padding:0; margin:0;"><span>TỔNG ĐÃ ĐÓNG:</span> <span id="tongTienHuiDaDong">0 ₫</span></p></div>
+
+            <h3 class="section-title">Tổng Kết Từng Chưng</h3>
+            <div id="khungTongKetTungHui"></div>
+
+            <h3 class="section-title">Lịch Sử Chi Tiết</h3>
+            <div class="search-box"><input type="text" id="timKiemTenHui" placeholder="Tìm tên chưng/chủ hụi..." oninput="trangHienTaiHui=1; hienThiDanhSachHui()"></div>
+            <div class="search-box" style="margin-top: 10px;">
+                <input type="date" id="timKiemNgayHui" onchange="trangHienTaiHui=1; hienThiDanhSachHui()">
+                <button onclick="document.getElementById('timKiemTenHui').value=''; document.getElementById('timKiemNgayHui').value=''; trangHienTaiHui=1; hienThiDanhSachHui()">Xóa Lọc</button>
+            </div>
+            <ul class="history-list" id="danhSachHui"></ul>
+            <div class="pagination" id="phanTrangHui"></div>
+        </div>
+
+        <div id="tab-thuchi" class="tab-content">
+            <div class="khu-vuc-thu">
+                <h3 style="color: var(--ios-green); margin-top: 0; font-size: 18px;">💰 KHOẢN THU</h3>
+                <div class="form-group">
+                    <label>Tên khoản thu</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="selectThu" style="flex: 1;"></select>
+                        <button class="btn-action-small" onclick="themDanhMuc('thu')">+ Thêm</button>
+                        <button class="btn-delete-cat" onclick="xoaDanhMuc('thu')">Xóa</button>
+                    </div>
+                </div>
+                <div class="form-group"><label>Số tiền thu (VNĐ)</label><input type="text" inputmode="numeric" id="tienThu" placeholder="Ví dụ: 10.000.000" oninput="dinhDangNhapLieu(this)"></div>
+                <div class="form-group"><label>Ngày thu</label><input type="date" id="ngayThu"></div>
+                <button class="btn-save" style="background:var(--ios-green);" onclick="luuGiaoDich('thu')">Lưu Khoản Thu</button>
+            </div>
+
+            <div class="khu-vuc-chi">
+                <h3 style="color: var(--ios-red); margin-top: 0; font-size: 18px;">💸 KHOẢN CHI</h3>
+                <div class="form-group">
+                    <label>Tên khoản chi</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="selectChi" style="flex: 1;"></select>
+                        <button class="btn-action-small" onclick="themDanhMuc('chi')" style="background:var(--ios-red);">+ Thêm</button>
+                        <button class="btn-delete-cat" onclick="xoaDanhMuc('chi')">Xóa</button>
+                    </div>
+                </div>
+                <div class="form-group"><label>Số tiền chi (VNĐ)</label><input type="text" inputmode="numeric" id="tienChi" placeholder="Ví dụ: 500.000" oninput="dinhDangNhapLieu(this)"></div>
+                <div class="form-group"><label>Ngày chi</label><input type="date" id="ngayChi"></div>
+                <button class="btn-save" style="background:var(--ios-red);" onclick="luuGiaoDich('chi')">Lưu Khoản Chi</button>
+            </div>
+
+            <div class="result-box">
+                <p><span class="thu-nhap">Tổng Thu</span> <span id="hienTongThu" class="thu-nhap">0 ₫</span></p>
+                <p><span class="chi-phi">Tổng Chi</span> <span id="hienTongChi" class="chi-phi">0 ₫</span></p>
+                <p class="highlight"><span>SỐ DƯ</span> <span id="hienSoDu">0 ₫</span></p>
+            </div>
+
+            <h3 class="section-title">Lịch Sử Thu - Chi</h3>
+            <div class="search-box"><input type="text" id="timKiemThuChi" placeholder="Tìm tên giao dịch..." oninput="trangHienTaiThuChi=1; hienThiDanhSachThuChi()"></div>
+            <div class="search-box" style="margin-top: 10px;">
+                <input type="date" id="timKiemNgayThuChi" onchange="trangHienTaiThuChi=1; hienThiDanhSachThuChi()">
+                <button onclick="document.getElementById('timKiemThuChi').value=''; document.getElementById('timKiemNgayThuChi').value=''; trangHienTaiThuChi=1; hienThiDanhSachThuChi()">Xóa Lọc</button>
+            </div>
+            <ul class="history-list" id="danhSachThuChi"></ul>
+            <div class="pagination" id="phanTrangThuChi"></div>
+        </div>
+
+        <div id="tab-ghichu" class="tab-content">
+            <div class="khu-vuc-thu" style="background: linear-gradient(145deg, #FFF9F0, #FFFFFF); border: 1px solid rgba(255, 149, 0, 0.15);">
+                <h3 style="color: var(--ios-orange); margin-top: 0; font-size: 18px;">📝 THÊM GHI CHÚ</h3>
+                <div class="form-group">
+                    <label>Tiêu đề (Không bắt buộc)</label>
+                    <input type="text" id="tieuDeGhiChu" placeholder="Ví dụ: Cần mua đồ siêu thị...">
+                </div>
+                <div class="form-group">
+                    <label>Nội dung ghi chú</label>
+                    <textarea id="noiDungGhiChu" placeholder="Nhập nội dung cần lưu lại..."></textarea>
+                </div>
+                <button class="btn-save" style="background:var(--ios-orange); box-shadow: 0 6px 16px rgba(255, 149, 0, 0.25);" onclick="luuGhiChu()">Lưu Ghi Chú</button>
+            </div>
+
+            <h3 class="section-title">Danh Sách Ghi Chú</h3>
+            <ul class="history-list" id="danhSachGhiChu"></ul>
+        </div>
+
+    </div>
+    
+    <div class="footer-bar">Ứng dụng được phát triển bởi PHỤC PRO P.128</div>
+
+    <div id="custom-modal-overlay">
+        <div id="custom-modal">
+            <div id="custom-modal-title">Chào Tú Trinh 😍</div>
+            <div id="custom-modal-body">
+                <div id="custom-modal-message"></div>
+                <div id="custom-modal-input-container"><input type="text" id="custom-modal-input" placeholder="Nhập tại đây..."></div>
+            </div>
+            <div id="custom-modal-buttons">
+                <button id="custom-modal-btn-cancel">Hủy</button>
+                <button id="custom-modal-btn-ok">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // DÁN ĐOẠN MÃ FIREBASE CỦA BẠN VÀO ĐÂY NHÉ:
+    // ==========================================
+    const firebaseConfig = {
+  apiKey: "AIzaSyAdBaEhyLNvFwK13694yKrwVcVXktXF0cw",
+  authDomain: "tutrinhapp-ece0e.firebaseapp.com",
+  databaseURL: "https://tutrinhapp-ece0e-default-rtdb.firebaseio.com",
+  projectId: "tutrinhapp-ece0e",
+  storageBucket: "tutrinhapp-ece0e.firebasestorage.app",
+  messagingSenderId: "383894640245",
+  appId: "1:383894640245:web:590cc3db42ec2992fbca3c"
+};
+
+    // Khởi tạo kết nối mây
+    if(firebaseConfig.apiKey !== "CHUA_CO") {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = typeof firebase !== 'undefined' ? firebase.database() : null;
+    const auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
+    const provider = typeof firebase !== 'undefined' ? new firebase.auth.GoogleAuthProvider() : null;
+    
+    let myKey = ""; 
+
+    const SO_DONG_MOI_TRANG = 5; 
+    let trangHienTaiOT = 1, trangHienTaiHui = 1, trangHienTaiThuChi = 1;
+
+    let lichSuOT = [];
+    let lichSuHui = [];
+    let lichSuThuChi = [];
+    let danhSachGhiChuArr = []; 
+    let viTriSuaGhiChu = -1; 
+    
+    let danhMucThu = ["Lương"];
+    let danhMucChi = ["Tiền trọ", "Tiền chợ", "Mua mỹ phẩm", "Phục mượn", "Tiền xăng", "Mua đồ online", "Mua linh tinh"];
+
+    // --- HỆ THỐNG VUỐT CHUYỂN TAB ---
+    let touchstartX = 0;
+    let touchendX = 0;
+
+    function checkDirection() {
+        let swipeThreshold = 60; 
+        if (touchendX < touchstartX - swipeThreshold) chuyenTabTheoHuong(1); 
+        if (touchendX > touchstartX + swipeThreshold) chuyenTabTheoHuong(-1); 
+    }
+
+    document.addEventListener('touchstart', e => { 
+        touchstartX = e.changedTouches[0].screenX; 
+    }, {passive: true});
+    
+    document.addEventListener('touchend', e => { 
+        touchendX = e.changedTouches[0].screenX; 
+        if(document.getElementById('main-app').style.display === 'block') {
+            checkDirection(); 
+        }
+    }, {passive: true});
+
+    function chuyenTabTheoHuong(huong) {
+        const danhSachTab = ['tab-luong', 'tab-hui', 'tab-thuchi', 'tab-ghichu']; 
+        const cacNutTab = document.querySelectorAll('.tab-btn');
+        let indexHienTai = 0;
+
+        for (let i = 0; i < danhSachTab.length; i++) {
+            if (document.getElementById(danhSachTab[i]).classList.contains('active')) {
+                indexHienTai = i; break;
+            }
+        }
+
+        let indexMoi = indexHienTai + huong;
+        if (indexMoi >= 0 && indexMoi < danhSachTab.length) {
+            chuyenTab(danhSachTab[indexMoi], cacNutTab[indexMoi]);
+        }
+    }
+
+    function dongBoLenMay() {
+        if(!db || !myKey) return;
+        db.ref('DuLieu_TuTrinh/' + myKey).set({
+            lichSuOT: lichSuOT,
+            lichSuHui: lichSuHui,
+            lichSuThuChi: lichSuThuChi,
+            danhMucThu: danhMucThu,
+            danhMucChi: danhMucChi,
+            ghiChu: danhSachGhiChuArr 
+        });
+    }
+
+    function hopThoaiTuTrinh(type, message) {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('custom-modal-overlay');
+            const msgEl = document.getElementById('custom-modal-message');
+            const inputContainer = document.getElementById('custom-modal-input-container');
+            const inputEl = document.getElementById('custom-modal-input');
+            const btnOk = document.getElementById('custom-modal-btn-ok');
+            const btnCancel = document.getElementById('custom-modal-btn-cancel');
+
+            msgEl.innerHTML = message; inputEl.value = '';
+            if (type === 'alert') { inputContainer.style.display = 'none'; btnCancel.style.display = 'none'; } 
+            else if (type === 'confirm') { inputContainer.style.display = 'none'; btnCancel.style.display = 'block'; } 
+            else if (type === 'prompt') { inputContainer.style.display = 'block'; btnCancel.style.display = 'block'; setTimeout(() => inputEl.focus(), 300); }
+
+            overlay.classList.add('show');
+            
+            const dongHopThoai = () => { 
+                overlay.classList.remove('show'); 
+                setTimeout(() => { btnOk.onclick = null; btnCancel.onclick = null; }, 400); 
+            };
+            btnOk.onclick = () => { dongHopThoai(); resolve(type === 'prompt' ? inputEl.value : true); };
+            btnCancel.onclick = () => { dongHopThoai(); resolve(type === 'prompt' ? null : false); };
+        });
+    }
+
+    const tuTrinhAlert = (msg) => hopThoaiTuTrinh('alert', msg);
+    const tuTrinhConfirm = (msg) => hopThoaiTuTrinh('confirm', msg);
+    const tuTrinhPrompt = (msg) => hopThoaiTuTrinh('prompt', msg);
+
+    function dinhDangNgayVN(ngayGoc) { if (!ngayGoc) return ""; let p = ngayGoc.split('-'); if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0]; return ngayGoc; }
+    function dinhDangNhapLieu(input) { let v = input.value.replace(/\./g, '').replace(/\D/g, ''); input.value = v !== "" ? v.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ""; }
+    function laySoTuInput(id) { return Number(document.getElementById(id).value.replace(/\./g, '')) || 0; }
+    function formatVND(tien) { return tien.toLocaleString('vi-VN') + " ₫"; }
+
+    // --- XỬ LÝ KHỞI ĐỘNG VÀ XÁC THỰC GOOGLE ---
+    window.onload = () => {
+        let today = new Date().toISOString().split('T')[0];
+        ['ngayOT', 'ngayDongHui', 'ngayThu', 'ngayChi'].forEach(id => document.getElementById(id).value = today);
+        
+        if(firebaseConfig.apiKey === "CHUA_CO") {
+            document.getElementById('login-msg').innerText = "LỖI: Chưa dán Khóa Firebase (Dòng 374)";
+            document.getElementById('login-msg').style.color = "var(--ios-red)";
+            return;
+        }
+
+        if(auth) {
+            document.getElementById('login-loader').style.display = 'block';
+            document.getElementById('btn-login-google').style.display = 'none';
+            document.getElementById('login-msg').innerText = "Đang kiểm tra đăng nhập...";
+
+            auth.getRedirectResult().then((result) => {
+                if (result.user) {}
+            }).catch((error) => {
+                document.getElementById('login-loader').style.display = 'none';
+                document.getElementById('btn-login-google').style.display = 'flex';
+                tuTrinhAlert("Lỗi Redirect: " + error.message);
+                document.getElementById('login-msg').innerText = "Kết nối thất bại. Thử lại!";
+            });
+        }
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                myKey = user.uid; 
+                document.getElementById('login-msg').innerText = "Xin chào, " + (user.displayName || "Bạn") + "!";
+                taiDuLieuTuMay();
+            } else {
+                document.getElementById('login-loader').style.display = 'none';
+                document.getElementById('btn-login-google').style.display = 'flex';
+                document.getElementById('login-msg').innerText = "Quản Lý Tài Chính Một Lần Vuốt Chạm";
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+            }
+        });
+    };
+
+    function xuLyDangNhapGoogle() {
+        document.getElementById('btn-login-google').style.display = 'none';
+        document.getElementById('login-loader').style.display = 'block';
+        document.getElementById('login-msg').innerText = "Đang kết nối...";
+
+        auth.signInWithPopup(provider).catch((error) => {
+            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+                document.getElementById('login-msg').innerText = "Đang chuyển hướng an toàn...";
+                auth.signInWithRedirect(provider);
+            } else {
+                document.getElementById('login-loader').style.display = 'none';
+                document.getElementById('btn-login-google').style.display = 'flex';
+                tuTrinhAlert("Lỗi Đăng nhập: " + error.message);
+                document.getElementById('login-msg').innerText = "Kết nối thất bại. Thử lại!";
+            }
+        });
+    }
+
+    async function dangXuatTaikhoan() {
+        if(await tuTrinhConfirm("Bạn có chắc chắn muốn đăng xuất tài khoản này khỏi thiết bị?")) {
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+    }
+
+    function taiDuLieuTuMay() {
+        db.ref('DuLieu_TuTrinh/' + myKey).once('value').then(snapshot => {
+            let data = snapshot.val();
+            if(data) {
+                lichSuOT = data.lichSuOT || [];
+                lichSuHui = data.lichSuHui || [];
+                lichSuThuChi = data.lichSuThuChi || [];
+                danhMucThu = data.danhMucThu || ["Lương"];
+                danhMucChi = data.danhMucChi || ["Tiền trọ", "Tiền chợ", "Mua mỹ phẩm", "Phục mượn", "Tiền xăng", "Mua đồ online", "Mua linh tinh"];
+                danhSachGhiChuArr = data.ghiChu || []; 
+            } else {
+                lichSuOT = []; lichSuHui = []; lichSuThuChi = [];
+                danhMucThu = ["Lương"];
+                danhMucChi = ["Tiền trọ", "Tiền chợ", "Mua mỹ phẩm", "Phục mượn", "Tiền xăng", "Mua đồ online", "Mua linh tinh"];
+                danhSachGhiChuArr = [];
+                dongBoLenMay(); 
+            }
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            
+            taiDuLieuLuong();
+            taiDuLieuHui();
+            capNhatGiaoDienDanhMuc();
+            hienThiDanhSachThuChi();
+            hienThiGhiChu(); 
+        }).catch(err => {
+            tuTrinhAlert("Lỗi tải dữ liệu: " + err.message);
+            document.getElementById('login-msg').innerText = "Lỗi kết nối. Vui lòng tải lại trang!";
+        });
+    }
+
+    function chuyenTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(t => {
+            t.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        let tabMoi = document.getElementById(tabId);
+        tabMoi.classList.add('active');
+        btnElement.classList.add('active');
+    }
+
+    // ==========================================
+    // TÍNH NĂNG GHI CHÚ THÔNG MINH
+    // ==========================================
+    async function luuGhiChu() {
+        let tieuDe = document.getElementById('tieuDeGhiChu').value.trim();
+        let noiDung = document.getElementById('noiDungGhiChu').value.trim();
+        if(!tieuDe && !noiDung) return await tuTrinhAlert("Bạn chưa nhập nội dung ghi chú!");
+
+        let ngaySua = new Date().toISOString(); 
+
+        if(viTriSuaGhiChu > -1) {
+            danhSachGhiChuArr[viTriSuaGhiChu] = { tieuDe, noiDung, ngaySua: ngaySua };
+            viTriSuaGhiChu = -1; 
+        } else {
+            danhSachGhiChuArr.unshift({ tieuDe, noiDung, ngaySua: ngaySua });
+        }
+
+        dongBoLenMay();
+        document.getElementById('tieuDeGhiChu').value = "";
+        document.getElementById('noiDungGhiChu').value = "";
+        hienThiGhiChu();
+        await tuTrinhAlert("Đã lưu ghi chú thành công ☁️!");
+    }
+
+    function hienThiGhiChu() {
+        let ul = document.getElementById('danhSachGhiChu');
+        ul.innerHTML = "";
+        
+        if(danhSachGhiChuArr.length === 0) {
+            ul.innerHTML = "<li style='justify-content:center; color:#8E8E93;'>Bạn chưa có ghi chú nào.</li>";
+            return;
+        }
+
+        danhSachGhiChuArr.forEach((note, index) => {
+            let li = document.createElement('li');
+            li.style.display = 'block'; 
+            
+            let dateObj = new Date(note.ngaySua);
+            let dateStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            let displayTitle = note.tieuDe ? `<strong style="color:var(--ios-text); font-size:16px;">${note.tieuDe}</strong><br>` : '';
+            
+            li.innerHTML = `
+                <div style="display:flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="flex:1; cursor: pointer;" onclick="suaGhiChu(${index})">
+                        ${displayTitle}
+                        <div class="note-preview">${note.noiDung}</div>
+                        <div class="note-date">Cập nhật: ${dateStr}</div>
+                    </div>
+                    <button onclick="xoaGhiChu(${index}, event)" class="btn-delete-small" style="margin-left: 15px; margin-top: 5px;">Xóa</button>
+                </div>
+            `;
+            ul.appendChild(li);
+        });
+    }
+
+    function suaGhiChu(index) {
+        let note = danhSachGhiChuArr[index];
+        document.getElementById('tieuDeGhiChu').value = note.tieuDe || "";
+        document.getElementById('noiDungGhiChu').value = note.noiDung || "";
+        viTriSuaGhiChu = index;
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('noiDungGhiChu').focus();
+    }
+
+    async function xoaGhiChu(index, event) {
+        event.stopPropagation(); 
+        if(await tuTrinhConfirm("Bạn có chắc chắn muốn xóa ghi chú này?")) {
+            danhSachGhiChuArr.splice(index, 1);
+            dongBoLenMay();
+            hienThiGhiChu();
+            
+            if(viTriSuaGhiChu === index) {
+                document.getElementById('tieuDeGhiChu').value = "";
+                document.getElementById('noiDungGhiChu').value = "";
+                viTriSuaGhiChu = -1;
+            }
+        }
+    }
+
+    // --- CÁC HÀM CŨ GIỮ NGUYÊN BẢN ---
+    function tinhToanTrucTiep() {
+        let luongCoBan = laySoTuInput('luongCoBan');
+        let bh = (luongCoBan * 0.105) + 25500; 
+        let tongOT = lichSuOT.reduce((t, i) => t + i.gio, 0) * (luongCoBan / 24 / 8 * 1.5);
+        document.getElementById('hienLCB').innerText = formatVND(luongCoBan);
+        document.getElementById('hienBHXH').innerText = "-" + formatVND(luongCoBan*0.08);
+        document.getElementById('hienBHYT').innerText = "-" + formatVND(luongCoBan*0.015);
+        document.getElementById('hienBHTN').innerText = "-" + formatVND(luongCoBan*0.01);
+        document.getElementById('hienTongTienOT').innerText = "+" + formatVND(tongOT);
+        document.getElementById('hienThucLanh').innerText = formatVND(luongCoBan - bh + tongOT + 700000);
+    }
+
+    async function luuNgayOT() {
+        let ngay = document.getElementById('ngayOT').value;
+        let gio = Number(document.getElementById('soGioOT').value);
+        if (gio <= 0) { await tuTrinhAlert("Chọn số giờ lớn hơn 0"); return; }
+        lichSuOT.push({ ngay, gio });
+        dongBoLenMay(); 
+        document.getElementById('soGioOT').value = "0"; trangHienTaiOT = 1;
+        taiDuLieuLuong(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
+    }
+
+    function taiDuLieuLuong() { tinhToanTrucTiep(); hienThiDanhSachOT(); }
+
+    function hienThiDanhSachOT() {
+        let ul = document.getElementById('danhSachOT'); ul.innerHTML = "";
+        let kNgay = document.getElementById('timKiemNgayOT').value;
+        let loc = lichSuOT.filter(i => !kNgay || i.ngay === kNgay).sort((a,b) => new Date(b.ngay) - new Date(a.ngay));
+        let pages = Math.ceil(loc.length / SO_DONG_MOI_TRANG) || 1;
+        if (trangHienTaiOT > pages) trangHienTaiOT = pages;
+
+        loc.slice((trangHienTaiOT - 1)*SO_DONG_MOI_TRANG, trangHienTaiOT*SO_DONG_MOI_TRANG).forEach(i => {
+            let idx = lichSuOT.indexOf(i);
+            let li = document.createElement('li');
+            li.innerHTML = `<span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span> <span>⏱️ ${i.gio} giờ <button onclick="xoaOT(${idx})" class="btn-delete-small">Xóa</button></span>`;
+            ul.appendChild(li);
+        });
+        taoNutPhanTrang('phanTrangOT', pages, trangHienTaiOT, (p) => { trangHienTaiOT = p; hienThiDanhSachOT(); });
+    }
+
+    async function xoaOT(idx) { if(await tuTrinhConfirm("Chắc chắn xóa?")) { lichSuOT.splice(idx, 1); dongBoLenMay(); taiDuLieuLuong(); } }
+
+    function dienNhanhThongTin(btn) {
+        document.getElementById('tenChungHui').value = btn.getAttribute('data-ten');
+        document.getElementById('chuHui').value = btn.getAttribute('data-chuhui');
+        document.getElementById('tienDongHui').focus();
+    }
+
+    async function luuTienHui() {
+        let ten = document.getElementById('tenChungHui').value.trim(), chuHui = document.getElementById('chuHui').value.trim();
+        let ngay = document.getElementById('ngayDongHui').value, tien = laySoTuInput('tienDongHui');
+        if (!ten || !ngay || tien <= 0) return await tuTrinhAlert("Nhập đủ thông tin!");
+        lichSuHui.push({ ten, chuHui, ngay, tien });
+        dongBoLenMay(); document.getElementById('tienDongHui').value = ""; trangHienTaiHui = 1;
+        taiDuLieuHui(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
+    }
+
+    function taiDuLieuHui() {
+        let tong = 0, nhom = {}, nhacNho = false;
+        let today = new Date();
+        today.setHours(0,0,0,0);
+
+        lichSuHui.forEach(i => {
+            tong += i.tien;
+            let key = i.ten + "|" + i.chuHui;
+            if(!nhom[key]) nhom[key] = { ten: i.ten, chuHui: i.chuHui, tong: 0, thang: 0, ngayBD: i.ngay, ngayCuoi: i.ngay };
+            nhom[key].tong += i.tien; nhom[key].thang += 1;
+            
+            let dateI = new Date(i.ngay);
+            dateI.setHours(0,0,0,0);
+            if(dateI < new Date(nhom[key].ngayBD)) nhom[key].ngayBD = i.ngay;
+            if(dateI > new Date(nhom[key].ngayCuoi)) nhom[key].ngayCuoi = i.ngay;
+        });
+
+        for(let key in nhom) {
+            let ngayBD = new Date(nhom[key].ngayBD);
+            let ngayDongCuaThang = ngayBD.getDate();
+            let ngayDongTiepTheo = new Date(today.getFullYear(), today.getMonth(), ngayDongCuaThang);
+            
+            if (ngayDongTiepTheo < today) {
+                ngayDongTiepTheo.setMonth(ngayDongTiepTheo.getMonth() + 1);
+            }
+            
+            let cachNgay = Math.floor((ngayDongTiepTheo - today) / (1000 * 60 * 60 * 24));
+            
+            if(cachNgay >= 0 && cachNgay <= 5) {
+                let ngayCuoi = new Date(nhom[key].ngayCuoi);
+                ngayCuoi.setHours(0,0,0,0);
+                let cachNgayCuoi = Math.floor((today - ngayCuoi) / (1000 * 60 * 60 * 24));
+                
+                if (cachNgayCuoi > 10) { 
+                    nhacNho = true;
+                }
+            }
+        }
+
+        document.getElementById('tongTienHuiDaDong').innerText = formatVND(tong);
+        document.getElementById('nhacNhoHui').style.display = nhacNho ? 'block' : 'none';
+
+        let k = document.getElementById('khungTongKetTungHui'); k.innerHTML = "";
+        if (Object.keys(nhom).length === 0) {
+            k.innerHTML = "<p style='color:#8E8E93; text-align:center; margin-top:20px;'>Chưa có dữ liệu</p>";
+        } else {
+            for(let key in nhom) {
+                let div = document.createElement('div'); div.className = 'result-box'; div.style.marginTop = '15px';
+                div.innerHTML = `
+                    <div style="border-bottom:1px solid var(--ios-light-gray); padding-bottom:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:var(--ios-blue); font-weight:800;">${nhom[key].ten} <span style="color:var(--ios-gray); font-size:13px; font-weight:normal;">(👤 ${nhom[key].chuHui})</span></span>
+                        <button class="btn-dien-nhanh" data-ten="${nhom[key].ten}" data-chuhui="${nhom[key].chuHui}" onclick="dienNhanhThongTin(this)">Điền</button>
+                    </div>
+                    <p><span>Ngày bắt đầu</span> <span class="ngay-hien-thi" style="margin:0; font-size: 14px;">${dinhDangNgayVN(nhom[key].ngayBD)}</span></p>
+                    <p><span>Đã đóng</span> <span><b>${nhom[key].thang} tháng</b></span></p>
+                    <p class="highlight" style="border:none; padding-top:5px; margin-top:5px;"><span>Tổng chưng này</span> <span>${formatVND(nhom[key].tong)}</span></p>`;
+                k.appendChild(div);
+            }
+        }
+        hienThiDanhSachHui();
+    }
+
+    function hienThiDanhSachHui() {
+        let ul = document.getElementById('danhSachHui'); ul.innerHTML = "";
+        let kTen = document.getElementById('timKiemTenHui').value.toLowerCase(), kNgay = document.getElementById('timKiemNgayHui').value;
+        let loc = lichSuHui.filter(i => (!kTen || i.ten.toLowerCase().includes(kTen) || i.chuHui.toLowerCase().includes(kTen)) && (!kNgay || i.ngay === kNgay)).sort((a,b)=>new Date(b.ngay)-new Date(a.ngay));
+        let pages = Math.ceil(loc.length / SO_DONG_MOI_TRANG) || 1;
+        if(trangHienTaiHui > pages) trangHienTaiHui = pages;
+
+        if(loc.length === 0) {
+            ul.innerHTML = "<li style='justify-content:center; color:#8E8E93;'>Không tìm thấy dữ liệu</li>";
+        } else {
+            loc.slice((trangHienTaiHui-1)*SO_DONG_MOI_TRANG, trangHienTaiHui*SO_DONG_MOI_TRANG).forEach(i => {
+                let li = document.createElement('li');
+                let hienThiChuHui = i.chuHui ? `<br><small style="color:var(--ios-gray);">👤 ${i.chuHui}</small>` : '';
+                li.innerHTML = `<span><strong style="color:var(--ios-text);">${i.ten}</strong>${hienThiChuHui}<br><span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span></span> <span style="text-align:right;"><b>${formatVND(i.tien)}</b> <button onclick="xoaHui(${lichSuHui.indexOf(i)})" class="btn-delete-small">Xóa</button></span>`;
+                ul.appendChild(li);
+            });
+        }
+        taoNutPhanTrang('phanTrangHui', pages, trangHienTaiHui, (p) => { trangHienTaiHui = p; hienThiDanhSachHui(); });
+    }
+    async function xoaHui(idx) { if(await tuTrinhConfirm("Chắc chắn xóa?")) { lichSuHui.splice(idx, 1); dongBoLenMay(); taiDuLieuHui(); } }
+
+    function capNhatGiaoDienDanhMuc() {
+        document.getElementById('selectThu').innerHTML = danhMucThu.map(d => `<option value="${d}">${d}</option>`).join('');
+        document.getElementById('selectChi').innerHTML = danhMucChi.map(d => `<option value="${d}">${d}</option>`).join('');
+    }
+
+    async function themDanhMuc(loai) {
+        let ten = await tuTrinhPrompt(`Nhập tên khoản ${loai === 'thu' ? 'THU' : 'CHI'} mới:`);
+        if(ten) {
+            ten = ten.trim();
+            if(loai === 'thu') { if(!danhMucThu.includes(ten)) danhMucThu.push(ten); document.getElementById('selectThu').value = ten; }
+            else { if(!danhMucChi.includes(ten)) danhMucChi.push(ten); document.getElementById('selectChi').value = ten; }
+            dongBoLenMay(); capNhatGiaoDienDanhMuc(); await tuTrinhAlert("Đã thêm thành công!");
+        }
+    }
+
+    async function xoaDanhMuc(loai) {
+        let sel = document.getElementById(loai === 'thu' ? 'selectThu' : 'selectChi').value;
+        if(!sel) return;
+        if(await tuTrinhConfirm(`Xóa khỏi danh sách chọn: "${sel}"?`)) {
+            if(loai === 'thu') danhMucThu = danhMucThu.filter(d => d !== sel);
+            else danhMucChi = danhMucChi.filter(d => d !== sel);
+            dongBoLenMay(); capNhatGiaoDienDanhMuc(); await tuTrinhAlert("Đã xóa!");
+        }
+    }
+
+    async function luuGiaoDich(loai) {
+        let ten = document.getElementById(loai === 'thu' ? 'selectThu' : 'selectChi').value;
+        let tien = laySoTuInput(loai === 'thu' ? 'tienThu' : 'tienChi');
+        let ngay = document.getElementById(loai === 'thu' ? 'ngayThu' : 'ngayChi').value;
+        if (!ten || tien <= 0 || !ngay) return await tuTrinhAlert("Nhập đủ thông tin!");
+        lichSuThuChi.push({ loai, ten, tien, ngay });
+        dongBoLenMay(); document.getElementById(loai === 'thu' ? 'tienThu' : 'tienChi').value = ""; trangHienTaiThuChi = 1;
+        hienThiDanhSachThuChi(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
+    }
+
+    function hienThiDanhSachThuChi() {
+        let ul = document.getElementById('danhSachThuChi'); ul.innerHTML = "";
+        let tThu = 0, tChi = 0;
+        let kTen = document.getElementById('timKiemThuChi').value.toLowerCase(), kNgay = document.getElementById('timKiemNgayThuChi').value;
+        
+        let loc = lichSuThuChi.filter(i => {
+            let trTen = !kTen || i.ten.toLowerCase().includes(kTen);
+            let trNgay = !kNgay || i.ngay === kNgay;
+            return trTen && trNgay;
+        });
+
+        loc.forEach(i => { if(i.loai === 'thu') tThu += i.tien; else tChi += i.tien; });
+        document.getElementById('hienTongThu').innerText = formatVND(tThu);
+        document.getElementById('hienTongChi').innerText = formatVND(tChi);
+        let soDu = tThu - tChi;
+        document.getElementById('hienSoDu').innerText = formatVND(soDu);
+        document.getElementById('hienSoDu').style.color = soDu < 0 ? "var(--ios-red)" : "var(--ios-blue)";
+
+        loc.sort((a,b)=>new Date(b.ngay)-new Date(a.ngay));
+        let pages = Math.ceil(loc.length / SO_DONG_MOI_TRANG) || 1;
+        if(trangHienTaiThuChi > pages) trangHienTaiThuChi = pages;
+
+        if(loc.length === 0) {
+            ul.innerHTML = "<li style='justify-content:center; color:#8E8E93;'>Không tìm thấy giao dịch nào</li>";
+        } else {
+            loc.slice((trangHienTaiThuChi-1)*SO_DONG_MOI_TRANG, trangHienTaiThuChi*SO_DONG_MOI_TRANG).forEach(i => {
+                let li = document.createElement('li');
+                let isThu = i.loai === 'thu';
+                let color = isThu ? "thu-nhap" : "chi-phi";
+                li.innerHTML = `<span><strong class="${color}">${i.ten}</strong><br><span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span></span> <span style="text-align:right;" class="${color}"><b>${isThu?'+':'-'} ${formatVND(i.tien)}</b> <button onclick="xoaThuChi(${lichSuThuChi.indexOf(i)})" class="btn-delete-small" style="background:#FFE5E5;">Xóa</button></span>`;
+                ul.appendChild(li);
+            });
+        }
+        taoNutPhanTrang('phanTrangThuChi', pages, trangHienTaiThuChi, (p) => { trangHienTaiThuChi = p; hienThiDanhSachThuChi(); });
+    }
+    async function xoaThuChi(idx) { if(await tuTrinhConfirm("Chắc chắn xóa?")) { lichSuThuChi.splice(idx, 1); dongBoLenMay(); hienThiDanhSachThuChi(); } }
+
+    function taoNutPhanTrang(id, tong, cur, cb) {
+        let c = document.getElementById(id); c.innerHTML = "";
+        if(tong <= 1) return;
+        for(let i=1; i<=tong; i++) {
+            let b = document.createElement('button'); b.className = "page-btn" + (i===cur?" active":"");
+            b.innerText = i; b.onclick = () => cb(i); c.appendChild(b);
+        }
+    }
+
+</script>
+</body>
+</html>
