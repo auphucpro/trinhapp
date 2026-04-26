@@ -7,7 +7,6 @@
     
     <link rel="icon" href="./logo.png" type="image/png">
     <link rel="apple-touch-icon" href="./logo.png">
-    
     <link rel="manifest" href="./manifest.json">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -17,14 +16,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* --- HỆ MÀU & BIẾN MẶC ĐỊNH KIỂU iOS --- */
         :root {
             --ios-bg: #F2F2F7;
             --ios-card: #FFFFFF;
             --ios-blue: #007AFF;
             --ios-green: #34C759;
             --ios-red: #FF3B30;
-            --ios-orange: #FF9500; /* Thêm màu cam cho Ghi chú */
+            --ios-orange: #FF9500; 
             --ios-gray: #8E8E93;
             --ios-light-gray: #E5E5EA;
             --ios-text: #1C1C1E;
@@ -32,21 +30,21 @@
             --shadow-md: 0 10px 30px rgba(0,0,0,0.08);
         }
 
+        /* LOẠI BỎ VIỀN VUÔNG XANH KHI BẤM CHẠM */
+        * { -webkit-tap-highlight-color: transparent !important; outline: none !important; }
+
         body, input, select, button, textarea, details, summary { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
         body { background-color: var(--ios-bg); color: var(--ios-text); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden;}
         .app-container { max-width: 480px; margin: 0 auto; background: var(--ios-bg); min-height: 100vh; position: relative; padding-bottom: 60px; overflow-x: hidden;}
         
-        /* HEADER CÓ NÚT ĐĂNG XUẤT */
         .header { background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); color: var(--ios-text); padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .header-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: var(--ios-blue); flex: 1; text-align: center; } 
         .btn-logout { background: rgba(255, 59, 48, 0.1); color: var(--ios-red); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; padding: 0;}
         .btn-logout:active { transform: scale(0.85); background: rgba(255, 59, 48, 0.2); }
 
-        /* THANH BẢN QUYỀN (FOOTER) TRONG SUỐT VÀ KHÔNG BẤM ĐƯỢC */
         .footer-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; padding: 12px 0; background: rgba(242, 242, 247, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); color: var(--ios-gray); font-size: 11px; text-align: center; pointer-events: none; border-top: 1px solid rgba(0,0,0,0.05); z-index: 99; font-weight: 500; }
 
-        /* MÀN HÌNH ĐĂNG NHẬP MỚI */
         #login-screen { padding: 60px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; animation: fadeSmooth 0.8s ease; }
         
         .app-logo { width: 140px; height: 140px; object-fit: contain; margin-bottom: 15px; animation: floatLogo 3s ease-in-out infinite; background: transparent;}
@@ -55,14 +53,12 @@
         #login-screen h1 { color: var(--ios-blue); font-size: 32px; font-weight: 800; margin-bottom: 5px; }
         #login-msg { color: var(--ios-gray); margin-bottom: 40px; font-size: 15px; font-style: italic;}
 
-        /* NÚT ĐĂNG NHẬP GOOGLE */
         .btn-google { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; max-width: 320px; padding: 16px; background: var(--ios-card); color: var(--ios-text); border: 1px solid var(--ios-light-gray); border-radius: 16px; font-size: 17px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
         .btn-google:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.05); background: #f9f9f9;}
         .google-icon { width: 24px; height: 24px; }
 
         #main-app { display: none; }
         
-        /* TABS & ANIMATIONS CHUYỂN TRANG MƯỢT MÀ */
         .tab-menu { display: flex; background: var(--ios-light-gray); border-radius: 14px; margin: 15px 20px 25px 20px; padding: 4px; position: relative;}
         .tab-btn { flex: 1; padding: 12px; text-align: center; color: var(--ios-text); cursor: pointer; background: transparent; border: none; font-size: 14px; font-weight: 600; outline: none; transition: all 0.4s ease; border-radius: 10px; z-index: 2;}
         .tab-btn.active { background: var(--ios-card); box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: var(--ios-blue); transform: scale(1.02);}
@@ -71,16 +67,37 @@
         .tab-content.active { display: block; animation: slideFadeTab 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         @keyframes slideFadeTab { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
         
-        /* INPUTS, FORMS & TEXTAREA */
         .form-group { margin-bottom: 16px; text-align: left; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--ios-gray); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 5px;}
-        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 16px; border: 1px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; background: var(--ios-card); box-shadow: var(--shadow-sm); color: var(--ios-text); outline: none; transition: all 0.3s ease; }
+        input[type="text"], input[type="date"], input[type="number"], select, textarea { width: 100%; padding: 16px; border: 1px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; background: var(--ios-card); box-shadow: var(--shadow-sm); color: var(--ios-text); outline: none; transition: all 0.3s ease; }
         textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
         input:focus, select:focus, textarea:focus { border: 1px solid var(--ios-blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1); transform: scale(1.01);}
 
-        /* BUTTONS CÓ HIỆU ỨNG NHÚN CHẬM */
-        button.btn-save { width: 100%; padding: 18px; background: var(--ios-blue); color: white; border: none; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 16px rgba(0, 122, 255, 0.25); transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        button.btn-save:active { transform: scale(0.94); box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15); opacity: 0.9; }
+        /* --- NÚT 3D SIÊU MƯỢT --- */
+        button.btn-save { 
+            width: 100%; padding: 18px; 
+            background: linear-gradient(145deg, var(--ios-blue), #0062cc); 
+            color: white; border: none; border-radius: 18px; 
+            font-size: 17px; font-weight: 800; cursor: pointer; 
+            margin-top: 10px; 
+            box-shadow: 0 6px 0 #004494, 0 10px 20px rgba(0, 122, 255, 0.3); 
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            transform: translateY(0);
+        }
+        button.btn-save:active { 
+            transform: translateY(6px); 
+            box-shadow: 0 0 0 #004494, 0 4px 10px rgba(0, 122, 255, 0.2); 
+            opacity: 0.95; 
+        }
+        /* 3D Màu Xanh Lá */
+        .btn-save[style*="var(--ios-green)"] { background: linear-gradient(145deg, var(--ios-green), #28a745) !important; box-shadow: 0 6px 0 #1e7e34, 0 10px 20px rgba(52, 199, 89, 0.3) !important; }
+        .btn-save[style*="var(--ios-green)"]:active { transform: translateY(6px) !important; box-shadow: 0 0 0 #1e7e34, 0 4px 10px rgba(52, 199, 89, 0.2) !important; }
+        /* 3D Màu Đỏ */
+        .btn-save[style*="var(--ios-red)"] { background: linear-gradient(145deg, var(--ios-red), #e60000) !important; box-shadow: 0 6px 0 #a30000, 0 10px 20px rgba(255, 59, 48, 0.3) !important; }
+        .btn-save[style*="var(--ios-red)"]:active { transform: translateY(6px) !important; box-shadow: 0 0 0 #a30000, 0 4px 10px rgba(255, 59, 48, 0.2) !important; }
+        /* 3D Màu Cam */
+        .btn-save[style*="var(--ios-orange)"] { background: linear-gradient(145deg, var(--ios-orange), #e68600) !important; box-shadow: 0 6px 0 #b36800, 0 10px 20px rgba(255, 149, 0, 0.3) !important; }
+        .btn-save[style*="var(--ios-orange)"]:active { transform: translateY(6px) !important; box-shadow: 0 0 0 #b36800, 0 4px 10px rgba(255, 149, 0, 0.2) !important; }
 
         details { background: var(--ios-card); padding: 16px; border-radius: 16px; margin-bottom: 20px; box-shadow: var(--shadow-sm); transition: all 0.3s ease; }
         details:active summary { opacity: 0.6; }
@@ -97,11 +114,14 @@
         
         .ot-highlight { font-size: 15px; font-weight: 700; color: var(--ios-blue); padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--ios-light-gray); white-space: nowrap; }
         .ot-highlight span:last-child { font-weight: 900; font-size: 18px; }
+        
+        /* CSS CHO DÒNG TỔNG GIỜ TĂNG CA MỚI */
+        .ot-highlight-sub { font-size: 15px; font-weight: 700; color: var(--ios-blue); margin-top: 6px; white-space: nowrap; }
+        .ot-highlight-sub span:last-child { font-weight: 900; font-size: 17px; }
 
         .chi-phi { color: var(--ios-red) !important; }
         .thu-nhap { color: var(--ios-green) !important; }
 
-        /* LỊCH SỬ VÀ GHI CHÚ */
         .section-title { margin-top: 40px; margin-bottom: 15px; font-size: 20px; font-weight: 800; color: var(--ios-text); padding-left: 5px; letter-spacing: -0.5px;}
         .history-list { list-style-type: none; padding: 0; margin-top: 15px; }
         
@@ -112,7 +132,6 @@
         
         .ngay-hien-thi { font-weight: 800; font-size: 15px; color: var(--ios-blue); display: inline-block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        /* ĐẶC TRƯNG GHI CHÚ */
         .note-preview { color: var(--ios-gray); font-size: 14px; margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; word-break: break-word;}
         .note-date { font-size: 11px; color: #A2A2A7; margin-top: 8px; font-weight: 500;}
 
@@ -126,7 +145,6 @@
         .btn-delete-small { background: #FFE5E5; color: var(--ios-red); border: none; padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 700; margin-left: 10px; transition: all 0.3s;}
         .btn-delete-small:active { transform: scale(0.9); background: #FFCACA;}
 
-        /* Tìm kiếm & Phân trang */
         .search-box { display: flex; gap: 10px; margin-top: 15px; }
         .search-box input { flex: 1; border-radius: 14px; }
         .search-box button { background: var(--ios-light-gray); color: var(--ios-text); font-weight: 700; border: none; padding: 12px 18px; border-radius: 14px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
@@ -140,7 +158,6 @@
         .khu-vuc-thu { background: linear-gradient(145deg, #F4FBF5, #FFFFFF); padding: 25px 20px; border-radius: 24px; margin-bottom: 25px; border: 1px solid rgba(52, 199, 89, 0.15); box-shadow: var(--shadow-sm); }
         .khu-vuc-chi { background: linear-gradient(145deg, #FFF4F4, #FFFFFF); padding: 25px 20px; border-radius: 24px; border: 1px solid rgba(255, 59, 48, 0.15); box-shadow: var(--shadow-sm); }
 
-        /* MODAL MƯỢT MÀ */
         #custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.4s ease; opacity: 0;}
         #custom-modal { background: rgba(255, 255, 255, 0.9); width: 85%; max-width: 340px; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.25); transform: scale(0.8); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
         #custom-modal-overlay.show { display: flex; opacity: 1; }
@@ -156,7 +173,6 @@
         #custom-modal-btn-ok { color: var(--ios-blue); font-weight: 700;}
         #custom-modal-buttons button:active { background: rgba(0,0,0,0.05); }
 
-        /* Loader Mượt */
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--ios-blue); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -196,6 +212,15 @@
         </div>
 
         <div id="tab-luong" class="tab-content active">
+            
+            <details>
+                <summary>🌙 Ca Đêm (Bấm để mở)</summary>
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Số ngày làm ca đêm trong tháng</label>
+                    <input type="number" inputmode="numeric" id="soNgayCaDem" value="0" oninput="tinhToanTrucTiep()" placeholder="Nhập số ngày..." style="border: 1px solid var(--ios-light-gray);">
+                </div>
+            </details>
+
             <details>
                 <summary>Cài đặt Lương Cơ Bản</summary>
                 <div class="form-group" style="margin-top:15px;">
@@ -225,7 +250,9 @@
                 <p><span>Trừ BHTN (1%)</span> <span id="hienBHTN">0</span></p>
                 <p><span>Trừ Công đoàn</span> <span>-25.500 ₫</span></p>
                 <p><span>Phụ cấp (Xăng, Trọ, CC)</span> <span>+700.000 ₫</span></p>
+                <p id="dongCaDem" style="display:none; color: var(--ios-orange); font-weight: 600;"><span>Phụ cấp Ca Đêm</span> <span id="hienPhuCapCaDem">0 ₫</span></p>
                 <p class="ot-highlight"><span>Tổng tiền Tăng Ca</span> <span id="hienTongTienOT">0 ₫</span></p>
+                <p class="ot-highlight-sub"><span>Tổng số giờ Tăng Ca</span> <span id="hienTongGioOT">0 giờ</span></p>
                 <p class="highlight"><span>TỔNG THỰC LÃNH</span> <span id="hienThucLanh">0 ₫</span></p>
             </div>
 
@@ -246,7 +273,8 @@
             <div id="formNhapHui">
                 <div class="form-group"><label>Tên chưng hụi</label><input type="text" id="tenChungHui" placeholder="Ví dụ: Hụi dây 2 triệu"></div>
                 <div class="form-group"><label>Chủ hụi (Người quản lý)</label><input type="text" id="chuHui" placeholder="Ví dụ: Dì Ba, Chị Tư..."></div>
-                <div class="form-group"><label>Ngày đóng</label><input type="date" id="ngayDongHui"></div>
+                <div class="form-group"><label>Ngày đóng (Dương Lịch - Dùng để báo thức)</label><input type="date" id="ngayDongHui"></div>
+                <div class="form-group"><label>Ngày Âm Lịch (Ghi chú - Không bắt buộc)</label><input type="text" id="ngayAmHui" placeholder="Ví dụ: Mùng 15 âm"></div>
                 <div class="form-group"><label>Số tiền đóng (VNĐ)</label><input type="text" inputmode="numeric" id="tienDongHui" placeholder="Ví dụ: 2.000.000" oninput="dinhDangNhapLieu(this)"></div>
                 <button class="btn-save" onclick="luuTienHui()">Lưu Thông Tin Hụi</button>
             </div>
@@ -324,7 +352,7 @@
                     <label>Nội dung ghi chú</label>
                     <textarea id="noiDungGhiChu" placeholder="Nhập nội dung cần lưu lại..."></textarea>
                 </div>
-                <button class="btn-save" style="background:var(--ios-orange); box-shadow: 0 6px 16px rgba(255, 149, 0, 0.25);" onclick="luuGhiChu()">Lưu Ghi Chú</button>
+                <button class="btn-save" style="background:var(--ios-orange);" onclick="luuGhiChu()">Lưu Ghi Chú</button>
             </div>
 
             <h3 class="section-title">Danh Sách Ghi Chú</h3>
@@ -363,7 +391,6 @@
   messagingSenderId: "383894640245",
   appId: "1:383894640245:web:590cc3db42ec2992fbca3c"
 };
-
     // Khởi tạo kết nối mây
     if(firebaseConfig.apiKey !== "CHUA_CO") {
         firebase.initializeApp(firebaseConfig);
@@ -476,7 +503,7 @@
         ['ngayOT', 'ngayDongHui', 'ngayThu', 'ngayChi'].forEach(id => document.getElementById(id).value = today);
         
         if(firebaseConfig.apiKey === "CHUA_CO") {
-            document.getElementById('login-msg').innerText = "LỖI: Chưa dán Khóa Firebase (Dòng 374)";
+            document.getElementById('login-msg').innerText = "LỖI: Chưa dán Khóa Firebase (Dòng 402)";
             document.getElementById('login-msg').style.color = "var(--ios-red)";
             return;
         }
@@ -581,6 +608,65 @@
     }
 
     // ==========================================
+    // TÍNH TOÁN LƯƠNG & CA ĐÊM
+    // ==========================================
+    function tinhToanTrucTiep() {
+        let luongCoBan = laySoTuInput('luongCoBan');
+        let soNgayCaDem = Number(document.getElementById('soNgayCaDem').value) || 0;
+        
+        let bh = (luongCoBan * 0.105) + 25500; 
+        let tongOTHours = lichSuOT.reduce((t, i) => t + i.gio, 0);
+        let tongOT = tongOTHours * (luongCoBan / 24 / 8 * 1.5);
+        let phuCapCaDem = (luongCoBan / 24) * 0.5 * soNgayCaDem;
+
+        document.getElementById('hienLCB').innerText = formatVND(luongCoBan);
+        document.getElementById('hienBHXH').innerText = "-" + formatVND(luongCoBan*0.08);
+        document.getElementById('hienBHYT').innerText = "-" + formatVND(luongCoBan*0.015);
+        document.getElementById('hienBHTN').innerText = "-" + formatVND(luongCoBan*0.01);
+        document.getElementById('hienTongTienOT').innerText = "+" + formatVND(tongOT);
+        document.getElementById('hienTongGioOT').innerText = tongOTHours + " giờ";
+
+        if(soNgayCaDem > 0) {
+            document.getElementById('dongCaDem').style.display = 'flex';
+            document.getElementById('hienPhuCapCaDem').innerText = "+" + formatVND(phuCapCaDem);
+        } else {
+            document.getElementById('dongCaDem').style.display = 'none';
+        }
+
+        document.getElementById('hienThucLanh').innerText = formatVND(luongCoBan - bh + tongOT + phuCapCaDem + 700000);
+    }
+
+    async function luuNgayOT() {
+        let ngay = document.getElementById('ngayOT').value;
+        let gio = Number(document.getElementById('soGioOT').value);
+        if (gio <= 0) { await tuTrinhAlert("Chọn số giờ lớn hơn 0"); return; }
+        lichSuOT.push({ ngay, gio });
+        dongBoLenMay(); 
+        document.getElementById('soGioOT').value = "0"; trangHienTaiOT = 1;
+        taiDuLieuLuong(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
+    }
+
+    function taiDuLieuLuong() { tinhToanTrucTiep(); hienThiDanhSachOT(); }
+
+    function hienThiDanhSachOT() {
+        let ul = document.getElementById('danhSachOT'); ul.innerHTML = "";
+        let kNgay = document.getElementById('timKiemNgayOT').value;
+        let loc = lichSuOT.filter(i => !kNgay || i.ngay === kNgay).sort((a,b) => new Date(b.ngay) - new Date(a.ngay));
+        let pages = Math.ceil(loc.length / SO_DONG_MOI_TRANG) || 1;
+        if (trangHienTaiOT > pages) trangHienTaiOT = pages;
+
+        loc.slice((trangHienTaiOT - 1)*SO_DONG_MOI_TRANG, trangHienTaiOT*SO_DONG_MOI_TRANG).forEach(i => {
+            let idx = lichSuOT.indexOf(i);
+            let li = document.createElement('li');
+            li.innerHTML = `<span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span> <span>⏱️ ${i.gio} giờ <button onclick="xoaOT(${idx})" class="btn-delete-small">Xóa</button></span>`;
+            ul.appendChild(li);
+        });
+        taoNutPhanTrang('phanTrangOT', pages, trangHienTaiOT, (p) => { trangHienTaiOT = p; hienThiDanhSachOT(); });
+    }
+
+    async function xoaOT(idx) { if(await tuTrinhConfirm("Chắc chắn xóa?")) { lichSuOT.splice(idx, 1); dongBoLenMay(); taiDuLieuLuong(); } }
+
+    // ==========================================
     // TÍNH NĂNG GHI CHÚ THÔNG MINH
     // ==========================================
     async function luuGhiChu() {
@@ -661,49 +747,6 @@
         }
     }
 
-    // --- CÁC HÀM CŨ GIỮ NGUYÊN BẢN ---
-    function tinhToanTrucTiep() {
-        let luongCoBan = laySoTuInput('luongCoBan');
-        let bh = (luongCoBan * 0.105) + 25500; 
-        let tongOT = lichSuOT.reduce((t, i) => t + i.gio, 0) * (luongCoBan / 24 / 8 * 1.5);
-        document.getElementById('hienLCB').innerText = formatVND(luongCoBan);
-        document.getElementById('hienBHXH').innerText = "-" + formatVND(luongCoBan*0.08);
-        document.getElementById('hienBHYT').innerText = "-" + formatVND(luongCoBan*0.015);
-        document.getElementById('hienBHTN').innerText = "-" + formatVND(luongCoBan*0.01);
-        document.getElementById('hienTongTienOT').innerText = "+" + formatVND(tongOT);
-        document.getElementById('hienThucLanh').innerText = formatVND(luongCoBan - bh + tongOT + 700000);
-    }
-
-    async function luuNgayOT() {
-        let ngay = document.getElementById('ngayOT').value;
-        let gio = Number(document.getElementById('soGioOT').value);
-        if (gio <= 0) { await tuTrinhAlert("Chọn số giờ lớn hơn 0"); return; }
-        lichSuOT.push({ ngay, gio });
-        dongBoLenMay(); 
-        document.getElementById('soGioOT').value = "0"; trangHienTaiOT = 1;
-        taiDuLieuLuong(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
-    }
-
-    function taiDuLieuLuong() { tinhToanTrucTiep(); hienThiDanhSachOT(); }
-
-    function hienThiDanhSachOT() {
-        let ul = document.getElementById('danhSachOT'); ul.innerHTML = "";
-        let kNgay = document.getElementById('timKiemNgayOT').value;
-        let loc = lichSuOT.filter(i => !kNgay || i.ngay === kNgay).sort((a,b) => new Date(b.ngay) - new Date(a.ngay));
-        let pages = Math.ceil(loc.length / SO_DONG_MOI_TRANG) || 1;
-        if (trangHienTaiOT > pages) trangHienTaiOT = pages;
-
-        loc.slice((trangHienTaiOT - 1)*SO_DONG_MOI_TRANG, trangHienTaiOT*SO_DONG_MOI_TRANG).forEach(i => {
-            let idx = lichSuOT.indexOf(i);
-            let li = document.createElement('li');
-            li.innerHTML = `<span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span> <span>⏱️ ${i.gio} giờ <button onclick="xoaOT(${idx})" class="btn-delete-small">Xóa</button></span>`;
-            ul.appendChild(li);
-        });
-        taoNutPhanTrang('phanTrangOT', pages, trangHienTaiOT, (p) => { trangHienTaiOT = p; hienThiDanhSachOT(); });
-    }
-
-    async function xoaOT(idx) { if(await tuTrinhConfirm("Chắc chắn xóa?")) { lichSuOT.splice(idx, 1); dongBoLenMay(); taiDuLieuLuong(); } }
-
     function dienNhanhThongTin(btn) {
         document.getElementById('tenChungHui').value = btn.getAttribute('data-ten');
         document.getElementById('chuHui').value = btn.getAttribute('data-chuhui');
@@ -713,9 +756,14 @@
     async function luuTienHui() {
         let ten = document.getElementById('tenChungHui').value.trim(), chuHui = document.getElementById('chuHui').value.trim();
         let ngay = document.getElementById('ngayDongHui').value, tien = laySoTuInput('tienDongHui');
+        let ngayAm = document.getElementById('ngayAmHui').value.trim(); // LẤY GHI CHÚ NGÀY ÂM
+        
         if (!ten || !ngay || tien <= 0) return await tuTrinhAlert("Nhập đủ thông tin!");
-        lichSuHui.push({ ten, chuHui, ngay, tien });
-        dongBoLenMay(); document.getElementById('tienDongHui').value = ""; trangHienTaiHui = 1;
+        lichSuHui.push({ ten, chuHui, ngay, tien, ngayAm }); // LƯU NGÀY ÂM VÀO MẢNG
+        dongBoLenMay(); 
+        document.getElementById('tienDongHui').value = ""; 
+        document.getElementById('ngayAmHui').value = ""; // XÓA TRẮNG
+        trangHienTaiHui = 1;
         taiDuLieuHui(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
     }
 
@@ -794,7 +842,9 @@
             loc.slice((trangHienTaiHui-1)*SO_DONG_MOI_TRANG, trangHienTaiHui*SO_DONG_MOI_TRANG).forEach(i => {
                 let li = document.createElement('li');
                 let hienThiChuHui = i.chuHui ? `<br><small style="color:var(--ios-gray);">👤 ${i.chuHui}</small>` : '';
-                li.innerHTML = `<span><strong style="color:var(--ios-text);">${i.ten}</strong>${hienThiChuHui}<br><span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span></span> <span style="text-align:right;"><b>${formatVND(i.tien)}</b> <button onclick="xoaHui(${lichSuHui.indexOf(i)})" class="btn-delete-small">Xóa</button></span>`;
+                let amLichHTML = i.ngayAm ? `<br><small style="color:var(--ios-orange); font-weight:700;">🌙 ${i.ngayAm}</small>` : ''; // HIỂN THỊ NGÀY ÂM NẾU CÓ
+                
+                li.innerHTML = `<span><strong style="color:var(--ios-text);">${i.ten}</strong>${hienThiChuHui}${amLichHTML}<br><span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span></span> <span style="text-align:right;"><b>${formatVND(i.tien)}</b> <button onclick="xoaHui(${lichSuHui.indexOf(i)})" class="btn-delete-small">Xóa</button></span>`;
                 ul.appendChild(li);
             });
         }
