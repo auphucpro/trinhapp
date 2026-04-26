@@ -90,9 +90,6 @@
         
         .ot-highlight { font-size: 15px; font-weight: 700; color: var(--ios-blue); padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--ios-light-gray); white-space: nowrap; }
         .ot-highlight span:last-child { font-weight: 900; font-size: 18px; }
-        
-        .ot-highlight-sub { font-size: 15px; font-weight: 700; color: var(--ios-blue); margin-top: 6px; white-space: nowrap; }
-        .ot-highlight-sub span:last-child { font-weight: 900; font-size: 17px; }
 
         .chi-phi { color: var(--ios-red) !important; }
         .thu-nhap { color: var(--ios-green) !important; }
@@ -248,7 +245,16 @@
                 <p id="dongCaDem" style="display:none; color: var(--ios-orange); font-weight: 700; border-top: 1px dashed var(--ios-light-gray); padding-top: 10px; margin-top: 10px;"><span>Tiền Phụ cấp Ca Đêm</span> <span id="hienPhuCapCaDem">0 ₫</span></p>
                 
                 <p class="ot-highlight"><span>Tổng tiền Tăng Ca</span> <span id="hienTongTienOT">0 ₫</span></p>
-                <p class="ot-highlight-sub"><span>Tổng số giờ Tăng Ca</span> <span id="hienTongGioOT">0 giờ</span></p>
+                
+                <div style="display:flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--ios-light-gray); padding-top: 12px; margin-top: 12px;">
+                    <span style="font-size: 15px; font-weight: 800; color: var(--ios-blue); white-space: nowrap;">Nhập nhanh Giờ Tăng Ca</span>
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <button onclick="themGioOTNhanh()" style="background: var(--ios-blue); color: white; border: none; border-radius: 10px; width: 34px; height: 34px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s;">+</button>
+                        <input type="number" id="soGioOTNhanh" value="0" min="0" step="0.5" oninput="tinhToanTrucTiep()" style="width: 50px; padding: 6px; text-align: center; border: 1px solid var(--ios-light-gray); border-radius: 10px; font-weight: 900; font-size: 16px; color: var(--ios-blue); background: var(--ios-bg);">
+                        <button onclick="luuCaiDatLuong()" style="background: var(--ios-blue); color: white; border: none; border-radius: 10px; padding: 0 12px; height: 34px; font-weight: 700; cursor: pointer;">Lưu</button>
+                    </div>
+                </div>
+                <div id="hienThiGioOTList" style="font-size: 12px; color: var(--ios-gray); text-align: right; margin-top: 4px; display: none;">(Và <span id="soGioOTList">0</span> giờ từ danh sách dưới)</div>
                 
                 <p class="highlight"><span>TỔNG THỰC LÃNH</span> <span id="hienThucLanh">0 ₫</span></p>
             </div>
@@ -446,7 +452,8 @@
             caiDatLuong: {
                 luongCoBan: laySoTuInput('luongCoBan') || 5660000,
                 soNgayCaDem: Number(document.getElementById('soNgayCaDem').value) || 0,
-                phuCap: laySoTuInput('phuCapInput') || 0
+                phuCap: laySoTuInput('phuCapInput') || 0,
+                soGioOTNhanh: Number(document.getElementById('soGioOTNhanh').value) || 0
             }
         });
     }
@@ -487,7 +494,7 @@
         ['ngayOT', 'ngayDongHui', 'ngayThu', 'ngayChi'].forEach(id => document.getElementById(id).value = today);
         
         if(firebaseConfig.apiKey === "CHUA_CO") {
-            document.getElementById('login-msg').innerText = "LỖI: Chưa dán Khóa Firebase (Dòng 402)";
+            document.getElementById('login-msg').innerText = "LỖI: Chưa dán Khóa Firebase (Dòng 419)";
             document.getElementById('login-msg').style.color = "var(--ios-red)"; return;
         }
 
@@ -556,13 +563,15 @@
                     setInputNumber('luongCoBan', data.caiDatLuong.luongCoBan || 5660000);
                     document.getElementById('soNgayCaDem').value = data.caiDatLuong.soNgayCaDem || 0;
                     setInputNumber('phuCapInput', data.caiDatLuong.phuCap != null ? data.caiDatLuong.phuCap : 700000);
+                    document.getElementById('soGioOTNhanh').value = data.caiDatLuong.soGioOTNhanh || 0; 
                 } else {
                     setInputNumber('luongCoBan', 5660000); document.getElementById('soNgayCaDem').value = 0; setInputNumber('phuCapInput', 700000);
+                    document.getElementById('soGioOTNhanh').value = 0; 
                 }
             } else {
                 lichSuOT = []; lichSuHui = []; lichSuThuChi = []; danhSachGhiChuArr = [];
                 danhMucThu = ["Lương"]; danhMucChi = ["Tiền trọ", "Tiền chợ", "Mua mỹ phẩm", "Phục mượn", "Tiền xăng", "Mua đồ online", "Mua linh tinh"];
-                setInputNumber('luongCoBan', 5660000); document.getElementById('soNgayCaDem').value = 0; setInputNumber('phuCapInput', 700000);
+                setInputNumber('luongCoBan', 5660000); document.getElementById('soNgayCaDem').value = 0; setInputNumber('phuCapInput', 700000); document.getElementById('soGioOTNhanh').value = 0;
                 dongBoLenMay(); 
             }
             
@@ -590,18 +599,26 @@
         tinhToanTrucTiep();
     }
 
+    function themGioOTNhanh() {
+        let input = document.getElementById('soGioOTNhanh');
+        input.value = Number(input.value) + 0.5;
+        tinhToanTrucTiep();
+    }
+
     async function luuCaiDatLuong() {
         dongBoLenMay();
-        await tuTrinhAlert("Đã lưu thiết lập lương (Ca đêm, Phụ cấp, Lương cơ bản) lên mây ☁️!");
+        await tuTrinhAlert("Đã lưu thiết lập (Lương, Phụ cấp, Ca đêm, Giờ OT) lên mây ☁️!");
     }
 
     function tinhToanTrucTiep() {
         let luongCoBan = laySoTuInput('luongCoBan');
         let soNgayCaDem = Number(document.getElementById('soNgayCaDem').value) || 0;
         let phuCap = laySoTuInput('phuCapInput') || 0;
+        let soGioOTNhanh = Number(document.getElementById('soGioOTNhanh').value) || 0;
         
         let bh = (luongCoBan * 0.105) + 25500; 
-        let tongOTHours = lichSuOT.reduce((t, i) => t + i.gio, 0);
+        let listOTHours = lichSuOT.reduce((t, i) => t + i.gio, 0);
+        let tongOTHours = listOTHours + soGioOTNhanh; // Cộng cả 2 nguồn
         let tongOT = tongOTHours * (luongCoBan / 24 / 8 * 1.5);
         let phuCapCaDem = (luongCoBan / 24) * 0.5 * soNgayCaDem;
 
@@ -612,7 +629,14 @@
         
         document.getElementById('hienPhuCapKhac').innerText = "+" + formatVND(phuCap);
         document.getElementById('hienTongTienOT').innerText = "+" + formatVND(tongOT);
-        document.getElementById('hienTongGioOT').innerText = tongOTHours + " giờ";
+        
+        // Hiện số giờ Tăng ca từ Danh sách nếu có
+        if (listOTHours > 0) {
+            document.getElementById('hienThiGioOTList').style.display = 'block';
+            document.getElementById('soGioOTList').innerText = listOTHours;
+        } else {
+            document.getElementById('hienThiGioOTList').style.display = 'none';
+        }
 
         if(soNgayCaDem > 0) {
             document.getElementById('dongCaDem').style.display = 'flex';
