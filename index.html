@@ -30,7 +30,6 @@
             --shadow-md: 0 10px 30px rgba(0,0,0,0.08);
         }
 
-        /* LOẠI BỎ VIỀN VUÔNG XANH KHI BẤM CHẠM */
         * { -webkit-tap-highlight-color: transparent !important; outline: none !important; }
 
         body, input, select, button, textarea, details, summary { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -73,7 +72,6 @@
         textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
         input:focus, select:focus, textarea:focus { border: 1px solid var(--ios-blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1); transform: scale(1.01);}
 
-        /* ĐÃ ĐƯA NÚT VỀ DẠNG MƯỢT MÀ BÌNH THƯỜNG KHÔNG 3D DẬP NỔI NỮA */
         button.btn-save { width: 100%; padding: 18px; background: var(--ios-blue); color: white; border: none; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 16px rgba(0, 122, 255, 0.25); transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
         button.btn-save:active { transform: scale(0.94); box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15); opacity: 0.9; }
 
@@ -189,11 +187,26 @@
         </div>
 
         <div id="tab-luong" class="tab-content active">
+            
             <details>
                 <summary>Cài đặt Lương Cơ Bản</summary>
                 <div class="form-group" style="margin-top:15px;">
                     <label>Lương cơ bản (VNĐ)</label>
-                    <input type="text" inputmode="numeric" id="luongCoBan" value="5.660.000" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()" style="border: 1px solid var(--ios-light-gray);">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" inputmode="numeric" id="luongCoBan" value="5.660.000" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()" style="border: 1px solid var(--ios-light-gray); flex: 1;">
+                        <button onclick="luuCaiDatLuong()" style="background: var(--ios-blue); color: white; border: none; border-radius: 14px; padding: 0 16px; font-weight: 700; cursor: pointer;">Lưu</button>
+                    </div>
+                </div>
+            </details>
+
+            <details>
+                <summary>Cài đặt Phụ Cấp (Xăng, Trọ, CC)</summary>
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Phụ cấp cố định (VNĐ)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" inputmode="numeric" id="phuCapInput" value="700.000" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()" style="border: 1px solid var(--ios-light-gray); flex: 1;">
+                        <button onclick="luuCaiDatLuong()" style="background: var(--ios-blue); color: white; border: none; border-radius: 14px; padding: 0 16px; font-weight: 700; cursor: pointer;">Lưu</button>
+                    </div>
                 </div>
             </details>
 
@@ -217,9 +230,10 @@
                         <span style="font-weight: 800; color: var(--ios-orange); font-size: 16px;">🌙 CA ĐÊM</span><br>
                         <span style="font-size: 12px; color: var(--ios-gray);">Tính thêm 50% lương/ngày</span>
                     </div>
-                    <div style="display:flex; align-items:center; gap: 10px;">
+                    <div style="display:flex; align-items:center; gap: 8px;">
                         <button onclick="themCaDem()" style="background: var(--ios-orange); color: white; border: none; border-radius: 10px; width: 34px; height: 34px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s;">+</button>
                         <input type="number" id="soNgayCaDem" value="0" min="0" oninput="tinhToanTrucTiep()" style="width: 50px; padding: 6px; text-align: center; border: 1px solid var(--ios-light-gray); border-radius: 10px; font-weight: 800; font-size: 16px; background: var(--ios-bg);">
+                        <button onclick="luuCaiDatLuong()" style="background: var(--ios-blue); color: white; border: none; border-radius: 10px; padding: 0 12px; height: 34px; font-weight: 700; cursor: pointer;">Lưu</button>
                     </div>
                 </div>
 
@@ -228,7 +242,8 @@
                 <p><span>Trừ BHYT (1.5%)</span> <span id="hienBHYT">0</span></p>
                 <p><span>Trừ BHTN (1%)</span> <span id="hienBHTN">0</span></p>
                 <p><span>Trừ Công đoàn</span> <span>-25.500 ₫</span></p>
-                <p><span>Phụ cấp (Xăng, Trọ, CC)</span> <span>+700.000 ₫</span></p>
+                
+                <p><span>Phụ cấp (Xăng, Trọ, CC)</span> <span id="hienPhuCapKhac">0 ₫</span></p>
                 
                 <p id="dongCaDem" style="display:none; color: var(--ios-orange); font-weight: 700; border-top: 1px dashed var(--ios-light-gray); padding-top: 10px; margin-top: 10px;"><span>Tiền Phụ cấp Ca Đêm</span> <span id="hienPhuCapCaDem">0 ₫</span></p>
                 
@@ -256,7 +271,7 @@
                 <div class="form-group"><label>Tên chưng hụi</label><input type="text" id="tenChungHui" placeholder="Ví dụ: Hụi dây 2 triệu"></div>
                 <div class="form-group"><label>Chủ hụi (Người quản lý)</label><input type="text" id="chuHui" placeholder="Ví dụ: Dì Ba, Chị Tư..."></div>
                 <div class="form-group"><label>Ngày đóng (Dương lịch)</label><input type="date" id="ngayDongHui"></div>
-                <div class="form-group"><label>Kỳ đóng hụi hàng tháng (ÂM LỊCH)</label><input type="number" id="ngayAmHui" placeholder="Ví dụ nhập: 15 (là mùng 15 âm hàng tháng)" style="background: #FFF9F0; border-color: rgba(255,149,0,0.3);"></div>
+                <div class="form-group"><label>Ngày khui hụi hàng tháng (ÂM LỊCH)</label><input type="number" id="ngayAmHui" placeholder="Ví dụ nhập: 15 (là mùng 15 âm hàng tháng)" style="background: #FFF9F0; border-color: rgba(255,149,0,0.3);"></div>
                 <div class="form-group"><label>Số tiền đóng (VNĐ)</label><input type="text" inputmode="numeric" id="tienDongHui" placeholder="Ví dụ: 2.000.000" oninput="dinhDangNhapLieu(this)"></div>
                 <button class="btn-save" onclick="luuTienHui()">Lưu Thông Tin Hụi</button>
             </div>
@@ -373,7 +388,6 @@
   messagingSenderId: "383894640245",
   appId: "1:383894640245:web:590cc3db42ec2992fbca3c"
 };
-
     if(firebaseConfig.apiKey !== "CHUA_CO") {
         firebase.initializeApp(firebaseConfig);
     }
@@ -428,7 +442,12 @@
         if(!db || !myKey) return;
         db.ref('DuLieu_TuTrinh/' + myKey).set({
             lichSuOT: lichSuOT, lichSuHui: lichSuHui, lichSuThuChi: lichSuThuChi,
-            danhMucThu: danhMucThu, danhMucChi: danhMucChi, ghiChu: danhSachGhiChuArr 
+            danhMucThu: danhMucThu, danhMucChi: danhMucChi, ghiChu: danhSachGhiChuArr,
+            caiDatLuong: {
+                luongCoBan: laySoTuInput('luongCoBan') || 5660000,
+                soNgayCaDem: Number(document.getElementById('soNgayCaDem').value) || 0,
+                phuCap: laySoTuInput('phuCapInput') || 0
+            }
         });
     }
 
@@ -461,6 +480,7 @@
     function dinhDangNhapLieu(input) { let v = input.value.replace(/\./g, '').replace(/\D/g, ''); input.value = v !== "" ? v.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ""; }
     function laySoTuInput(id) { return Number(document.getElementById(id).value.replace(/\./g, '')) || 0; }
     function formatVND(tien) { return tien.toLocaleString('vi-VN') + " ₫"; }
+    function setInputNumber(id, val) { document.getElementById(id).value = val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
     window.onload = () => {
         let today = new Date().toISOString().split('T')[0];
@@ -531,9 +551,18 @@
                 danhMucThu = data.danhMucThu || ["Lương"];
                 danhMucChi = data.danhMucChi || ["Tiền trọ", "Tiền chợ", "Mua mỹ phẩm", "Phục mượn", "Tiền xăng", "Mua đồ online", "Mua linh tinh"];
                 danhSachGhiChuArr = data.ghiChu || []; 
+                
+                if(data.caiDatLuong) {
+                    setInputNumber('luongCoBan', data.caiDatLuong.luongCoBan || 5660000);
+                    document.getElementById('soNgayCaDem').value = data.caiDatLuong.soNgayCaDem || 0;
+                    setInputNumber('phuCapInput', data.caiDatLuong.phuCap != null ? data.caiDatLuong.phuCap : 700000);
+                } else {
+                    setInputNumber('luongCoBan', 5660000); document.getElementById('soNgayCaDem').value = 0; setInputNumber('phuCapInput', 700000);
+                }
             } else {
                 lichSuOT = []; lichSuHui = []; lichSuThuChi = []; danhSachGhiChuArr = [];
                 danhMucThu = ["Lương"]; danhMucChi = ["Tiền trọ", "Tiền chợ", "Mua mỹ phẩm", "Phục mượn", "Tiền xăng", "Mua đồ online", "Mua linh tinh"];
+                setInputNumber('luongCoBan', 5660000); document.getElementById('soNgayCaDem').value = 0; setInputNumber('phuCapInput', 700000);
                 dongBoLenMay(); 
             }
             
@@ -554,16 +583,22 @@
         btnElement.classList.add('active');
     }
 
-    // --- TÍNH LƯƠNG & CA ĐÊM ---
+    // --- TÍNH LƯƠNG & CÀI ĐẶT ---
     function themCaDem() {
         let input = document.getElementById('soNgayCaDem');
         input.value = Number(input.value) + 1;
         tinhToanTrucTiep();
     }
 
+    async function luuCaiDatLuong() {
+        dongBoLenMay();
+        await tuTrinhAlert("Đã lưu thiết lập lương (Ca đêm, Phụ cấp, Lương cơ bản) lên mây ☁️!");
+    }
+
     function tinhToanTrucTiep() {
         let luongCoBan = laySoTuInput('luongCoBan');
         let soNgayCaDem = Number(document.getElementById('soNgayCaDem').value) || 0;
+        let phuCap = laySoTuInput('phuCapInput') || 0;
         
         let bh = (luongCoBan * 0.105) + 25500; 
         let tongOTHours = lichSuOT.reduce((t, i) => t + i.gio, 0);
@@ -574,6 +609,8 @@
         document.getElementById('hienBHXH').innerText = "-" + formatVND(luongCoBan*0.08);
         document.getElementById('hienBHYT').innerText = "-" + formatVND(luongCoBan*0.015);
         document.getElementById('hienBHTN').innerText = "-" + formatVND(luongCoBan*0.01);
+        
+        document.getElementById('hienPhuCapKhac').innerText = "+" + formatVND(phuCap);
         document.getElementById('hienTongTienOT').innerText = "+" + formatVND(tongOT);
         document.getElementById('hienTongGioOT').innerText = tongOTHours + " giờ";
 
@@ -584,7 +621,7 @@
             document.getElementById('dongCaDem').style.display = 'none';
         }
 
-        document.getElementById('hienThucLanh').innerText = formatVND(luongCoBan - bh + tongOT + phuCapCaDem + 700000);
+        document.getElementById('hienThucLanh').innerText = formatVND(luongCoBan - bh + tongOT + phuCapCaDem + phuCap);
     }
 
     async function luuNgayOT() {
@@ -593,7 +630,7 @@
         if (gio <= 0) { await tuTrinhAlert("Chọn số giờ lớn hơn 0"); return; }
         lichSuOT.push({ ngay, gio }); dongBoLenMay(); 
         document.getElementById('soGioOT').value = "0"; trangHienTaiOT = 1;
-        taiDuLieuLuong(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
+        taiDuLieuLuong(); await tuTrinhAlert("Đã lưu Tăng ca lên mây ☁️!");
     }
 
     function taiDuLieuLuong() { tinhToanTrucTiep(); hienThiDanhSachOT(); }
@@ -616,6 +653,7 @@
 
     async function xoaOT(idx) { if(await tuTrinhConfirm("Chắc chắn xóa?")) { lichSuOT.splice(idx, 1); dongBoLenMay(); taiDuLieuLuong(); } }
 
+    // --- XỬ LÝ HỤI ---
     function dienNhanhThongTin(btn) {
         document.getElementById('tenChungHui').value = btn.getAttribute('data-ten');
         document.getElementById('chuHui').value = btn.getAttribute('data-chuhui');
@@ -632,13 +670,11 @@
         trangHienTaiHui = 1; taiDuLieuHui(); await tuTrinhAlert("Đã lưu trên mây ☁️!");
     }
 
-    // --- XỬ LÝ NHẮC HỤI KẾT HỢP ÂM LỊCH NATIVE ---
     function taiDuLieuHui() {
         let tong = 0, nhom = {}, nhacNho = false;
         let today = new Date(); today.setHours(0,0,0,0);
         
-        // Lấy ngày âm hiện tại siêu chuẩn xác bằng Native API của trình duyệt
-        let currentLunarDay = today.getDate(); // Dự phòng
+        let currentLunarDay = today.getDate(); 
         try {
             let parts = new Intl.DateTimeFormat('vi-VN-u-ca-chinese', {day: 'numeric'}).formatToParts(today);
             let dayStr = parts.find(p => p.type === 'day').value;
@@ -658,13 +694,11 @@
             let cachNgay = 999;
             let targetLunarDay = parseInt(nhom[key].ngayAm);
             
-            // NẾU CÓ NHẬP NGÀY ÂM (vd: 15) THÌ TÍNH THEO ÂM LỊCH
             if (!isNaN(targetLunarDay) && targetLunarDay > 0 && targetLunarDay <= 30) {
                 let diff = targetLunarDay - currentLunarDay;
-                if (diff < 0) diff += 30; // Sang tháng âm tiếp theo
+                if (diff < 0) diff += 30; 
                 cachNgay = diff;
             } 
-            // NẾU KHÔNG NHẬP NGÀY ÂM THÌ TÍNH THEO DƯƠNG LỊCH BÌNH THƯỜNG
             else {
                 let ngayBD = new Date(nhom[key].ngayBD);
                 let ngayDongCuaThang = ngayBD.getDate();
@@ -673,11 +707,10 @@
                 cachNgay = Math.floor((ngayDongTiepTheo - today) / (1000 * 60 * 60 * 24));
             }
             
-            // Cảnh báo nếu tới ngày nhưng kiểm tra xem đóng chưa
             if(cachNgay >= 0 && cachNgay <= 5) {
                 let ngayCuoi = new Date(nhom[key].ngayCuoi); ngayCuoi.setHours(0,0,0,0);
                 let cachNgayCuoi = Math.floor((today - ngayCuoi) / (1000 * 60 * 60 * 24));
-                if (cachNgayCuoi > 10) nhacNho = true; // Đã quá 10 ngày chưa đóng -> Nhắc!
+                if (cachNgayCuoi > 10) nhacNho = true; 
             }
         }
 
@@ -708,7 +741,7 @@
             loc.slice((trangHienTaiHui-1)*SO_DONG_MOI_TRANG, trangHienTaiHui*SO_DONG_MOI_TRANG).forEach(i => {
                 let li = document.createElement('li');
                 let hienThiChuHui = i.chuHui ? `<br><small style="color:var(--ios-gray);">👤 ${i.chuHui}</small>` : '';
-                let amLichHTML = (i.ngayAm && i.ngayAm.trim() !== '') ? `<br><small style="color:var(--ios-orange); font-weight:700;">🌙 Kỳ: Mùng ${i.ngayAm} âm</small>` : '';
+                let amLichHTML = (i.ngayAm && i.ngayAm.trim() !== '') ? `<br><small style="color:var(--ios-orange); font-weight:700;">🌙 Kỳ: Mùng ${i.ngayAm} âm</small>` : ''; 
                 li.innerHTML = `<span><strong style="color:var(--ios-text);">${i.ten}</strong>${hienThiChuHui}${amLichHTML}<br><span class="ngay-hien-thi">${dinhDangNgayVN(i.ngay)}</span></span> <span style="text-align:right;"><b>${formatVND(i.tien)}</b> <button onclick="xoaHui(${lichSuHui.indexOf(i)})" class="btn-delete-small">Xóa</button></span>`;
                 ul.appendChild(li);
             });
