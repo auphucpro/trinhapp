@@ -513,6 +513,56 @@
             display: flex; gap: 10px; align-items: center; margin-bottom: 14px;
         }
         .delete-month-row select { flex: 1; }
+
+        /* ===== TĂNG CA CHỦ NHẬT ===== */
+        .cn-section {
+            background: linear-gradient(135deg, rgba(255,159,10,0.08), rgba(255,59,92,0.06));
+            border: 1.5px solid rgba(255,159,10,0.25);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px 10px 16px;
+            margin-top: 14px;
+            box-shadow: 0 4px 16px rgba(255,159,10,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+        .cn-title {
+            font-size: 13px; font-weight: 900; color: var(--orange);
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+        }
+        .cn-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; gap: 8px;
+        }
+        .cn-label { font-size: 14px; font-weight: 800; color: var(--text); flex: 1; }
+        .cn-label small { font-size: 11px; color: var(--gray); font-weight: 600; display: block; margin-top: 1px; }
+        .cn-input-wrap { display: flex; align-items: center; gap: 6px; }
+        .cn-input {
+            width: 64px; padding: 8px 6px; text-align: center;
+            border: 1.5px solid rgba(255,159,10,0.3); border-radius: 12px;
+            font-weight: 900; font-size: 16px; color: var(--orange);
+            background: rgba(255,240,210,0.7); font-family: 'Nunito', sans-serif;
+        }
+        .cn-result {
+            font-size: 13px; font-weight: 800; color: var(--orange);
+            text-align: right; min-width: 90px;
+        }
+        .cn-total-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 10px; margin-top: 8px;
+            border-top: 1.5px dashed rgba(255,159,10,0.3);
+        }
+        .cn-total-label { font-size: 14px; font-weight: 900; color: var(--orange); }
+        .cn-total-amount { font-size: 15px; font-weight: 900; color: var(--orange); }
+        .btn-save-cn {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, #ff9f0a, #e07800);
+            color: white; border: none; border-radius: var(--radius-sm);
+            font-size: 15px; font-weight: 900; font-family: 'Nunito', sans-serif;
+            cursor: pointer; margin-top: 12px;
+            box-shadow: 0 8px 20px rgba(255,159,10,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-save-cn:active { transform: scale(0.93); box-shadow: 0 3px 10px rgba(255,159,10,0.2); }
     </style>
 </head>
 <body>
@@ -631,6 +681,48 @@
                 <div id="hienThiGioOTList" style="font-size:12px;color:var(--gray);text-align:right;margin-top:4px;display:none;">(Và <span id="soGioOTList">0</span> giờ từ danh sách)</div>
 
                 <p class="highlight"><span>TỔNG THỰC LÃNH</span> <span id="hienThucLanh">0 ₫</span></p>
+
+                <!-- TĂNG CA CHỦ NHẬT -->
+                <div class="cn-section">
+                    <div class="cn-title">☀️ Tăng Ca Chủ Nhật</div>
+
+                    <!-- Dòng 1: TA CN - Giờ tăng ca -->
+                    <div class="cn-row">
+                        <div class="cn-label">
+                            ⏱️ TA CN
+                            <small>Giờ tăng ca CN × 200% lương/giờ</small>
+                        </div>
+                        <div class="cn-input-wrap">
+                            <input type="text" inputmode="decimal" id="gioCN" value="" oninput="tinhToanCN()" class="cn-input" placeholder="0">
+                            <span style="font-size:12px;color:var(--gray);font-weight:700;">giờ</span>
+                        </div>
+                        <span class="cn-result" id="tienGioCN">0 ₫</span>
+                    </div>
+
+                    <!-- Dòng 2: PC CN - Phụ cấp ngày CN -->
+                    <div class="cn-row">
+                        <div class="cn-label">
+                            📅 PC CN
+                            <small id="mucPCCNLabel">Phụ cấp 1 ngày = 200/24 ₫</small>
+                        </div>
+                        <div class="cn-input-wrap">
+                            <input type="text" inputmode="numeric" id="ngayCN" value="" oninput="tinhToanCN()" class="cn-input" placeholder="0">
+                            <span style="font-size:12px;color:var(--gray);font-weight:700;">ngày</span>
+                        </div>
+                        <span class="cn-result" id="tienPCCN">0 ₫</span>
+                    </div>
+
+                    <!-- Tổng tăng ca CN -->
+                    <div class="cn-total-row">
+                        <span class="cn-total-label">🟠 Tổng TC Chủ Nhật</span>
+                        <span class="cn-total-amount" id="tongTienCN">0 ₫</span>
+                    </div>
+
+                    <!-- Nút lưu lớn -->
+                    <button class="btn-save-cn" onclick="luuTangCaCN()">
+                        ☁️ Lưu Tăng Ca Chủ Nhật
+                    </button>
+                </div>
             </div>
 
             <!-- LỊCH SỬ TĂNG CA -->
@@ -950,6 +1042,7 @@
             document.getElementById('main-app').style.display='block';
             taiDuLieuLuong(); taiDuLieuHui(); capNhatGiaoDienDanhMuc(); hienThiDanhSachThuChi(); hienThiGhiChu();
             capNhatSelectThangXoa();
+            taiDuLieuCN(data);
         }).catch(err => tuTrinhAlert("Lỗi tải dữ liệu: " + err.message));
     }
 
@@ -966,6 +1059,15 @@
     function themGioOTNhanh() { document.getElementById('soGioOTNhanh').value = Number(document.getElementById('soGioOTNhanh').value)+0.5; tinhToanTrucTiep(); }
 
     async function luuCaiDatLuong() { dongBoLenMay(); await tuTrinhAlert("Đã lưu thiết lập lên mây ☁️!"); }
+
+    function layTienCNHienTai() {
+        let luong = laySoTuInput('luongCoBan');
+        let gioCN = Number(document.getElementById('gioCN').value) || 0;
+        let ngayCN = Number(document.getElementById('ngayCN').value) || 0;
+        let tienGioCN = (luong / 24 / 8) * 2 * gioCN;
+        let tienPCCN = (luong / 24) * ngayCN;
+        return tienGioCN + tienPCCN;
+    }
 
     function tinhToanTrucTiep() {
         let luong = laySoTuInput('luongCoBan');
@@ -1003,7 +1105,7 @@
             document.getElementById('dongCaDem').style.display = 'none';
         }
 
-        document.getElementById('hienThucLanh').innerText = formatVND(luong - bh + tongOT + phuCapCD + phuCap);
+        document.getElementById('hienThucLanh').innerText = formatVND(luong - bh + tongOT + phuCapCD + phuCap + layTienCNHienTai());
 
         // Cập nhật banner tháng OT (bao gồm cả giờ OT nhanh)
         let thangOTHours = lichSuOT.filter(i=>i.thang===thangHT).reduce((t,i)=>t+i.gio,0);
@@ -1277,7 +1379,77 @@
     }
     async function xoaThuChi(idx) { if(await tuTrinhConfirm("Chắc chắn xóa?")) { lichSuThuChi.splice(idx,1); dongBoLenMay(); hienThiDanhSachThuChi(); } }
 
-    // ===== GHI CHÚ =====
+    // ===== TĂNG CA CHỦ NHẬT =====
+    function tinhToanCN() {
+        let luong = laySoTuInput('luongCoBan');
+        let gioCN = Number(document.getElementById('gioCN').value) || 0;
+        let ngayCN = Number(document.getElementById('ngayCN').value) || 0;
+
+        // Tiền 1 giờ tăng ca CN = (Lương cơ bản / 24 / 8) * 200%
+        let tienMotGioCN = (luong / 24 / 8) * 2;
+        let tienGioCN = tienMotGioCN * gioCN;
+
+        // Phụ cấp 1 ngày CN = Lương cơ bản / 24 * (200/24)
+        // Theo công thức: 200/24 nghĩa là lấy hệ số 200 chia 24 để ra số tiền phụ cấp mỗi ngày
+        // Thực tế: phuCap1Ngay = luong / 24
+        let phuCap1NgayCN = luong / 24;
+        let tienPCCN = phuCap1NgayCN * ngayCN;
+
+        let tongCN = tienGioCN + tienPCCN;
+
+        document.getElementById('tienGioCN').innerText = gioCN > 0 ? "+" + formatVND(tienGioCN) : "0 ₫";
+        document.getElementById('tienPCCN').innerText = ngayCN > 0 ? `${formatVND(phuCap1NgayCN)}/ngày` : "0 ₫";
+        document.getElementById('mucPCCNLabel').innerText = `Phụ cấp 1 ngày = ${formatVND(phuCap1NgayCN)}`;
+        document.getElementById('tongTienCN').innerText = tongCN > 0 ? "+" + formatVND(tongCN) : "0 ₫";
+
+        // Cập nhật lại TỔNG THỰC LÃNH (có cộng thêm tăng ca CN)
+        tinhToanTrucTiepVoiCN(tongCN);
+    }
+
+    function tinhToanTrucTiepVoiCN(tongCN) {
+        let luong = laySoTuInput('luongCoBan');
+        let caDem = Number(document.getElementById('soNgayCaDem').value) || 0;
+        let phuCap = laySoTuInput('phuCapInput') || 0;
+        let otNhanh = Number(document.getElementById('soGioOTNhanh').value) || 0;
+        let bh = (luong * 0.105) + 25500;
+        let thangHT = layThangHienTai();
+        let listOTHours = lichSuOT.filter(i => i.thang === thangHT).reduce((t,i)=>t+i.gio, 0);
+        let tongOTHours = listOTHours + otNhanh;
+        let tongOT = tongOTHours * (luong / 24 / 8 * 1.5);
+        let phuCapCD = (luong / 24) * 0.5 * caDem;
+        document.getElementById('hienThucLanh').innerText = formatVND(luong - bh + tongOT + phuCapCD + phuCap + (tongCN || 0));
+    }
+
+    async function luuTangCaCN() {
+        if(!db || !myKey) { await tuTrinhAlert("Chưa đăng nhập!"); return; }
+        let gioCN = Number(document.getElementById('gioCN').value) || 0;
+        let ngayCN = Number(document.getElementById('ngayCN').value) || 0;
+        let luong = laySoTuInput('luongCoBan');
+        let tienMotGioCN = (luong / 24 / 8) * 2;
+        let tienGioCN = tienMotGioCN * gioCN;
+        let phuCap1NgayCN = luong / 24;
+        let tienPCCN = phuCap1NgayCN * ngayCN;
+        let tongCN = tienGioCN + tienPCCN;
+
+        try {
+            await db.ref('DuLieu_TuTrinh/' + myKey + '/tangCaCN').set({
+                gioCN, ngayCN, tongCN,
+                capNhat: new Date().toISOString()
+            });
+            await tuTrinhAlert(`Đã lưu Tăng Ca Chủ Nhật lên mây ☁️!\n\nTC CN: ${formatVND(tienGioCN)}\nPC CN: ${formatVND(tienPCCN)}\nTổng: ${formatVND(tongCN)}`);
+        } catch(e) {
+            await tuTrinhAlert("Lỗi lưu: " + e.message);
+        }
+    }
+
+    function taiDuLieuCN(data) {
+        if(data && data.tangCaCN) {
+            let cn = data.tangCaCN;
+            document.getElementById('gioCN').value = cn.gioCN || 0;
+            document.getElementById('ngayCN').value = cn.ngayCN || 0;
+            tinhToanCN();
+        }
+    }
     async function luuGhiChu() {
         let tieuDe=document.getElementById('tieuDeGhiChu').value.trim();
         let noiDung=document.getElementById('noiDungGhiChu').value.trim();
