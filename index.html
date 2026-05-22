@@ -352,16 +352,16 @@
         /* Input controls bên trong rb */
         .rb-ctrl-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 14px; background: #f7faff; border-radius: 14px;
-            margin: 4px 12px; gap: 10px; overflow: hidden;
+            padding: 8px 12px; background: #f7faff; border-radius: 12px;
+            margin: 6px 12px; gap: 8px; overflow: hidden;
         }
         .rb-ctrl-label { font-size: 13px; font-weight: 800; color: #1a2a3a; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-        .rb-ctrl-label small { display: block; font-size: 11px; color: #aac0d8; font-weight: 600; margin-top: 1px; }
+        .rb-ctrl-label small { display: block; font-size: 10px; color: #aac0d8; font-weight: 600; margin-top: 0; }
         .rb-counter-wrap { display: flex; align-items: center; gap: 8px; }
         .rb-counter-btn {
-            width: 32px; height: 32px; border-radius: 50%;
+            width: 28px; height: 28px; border-radius: 50%;
             border: none; cursor: pointer;
-            font-size: 18px; font-weight: 700; font-family: 'Nunito', sans-serif;
+            font-size: 16px; font-weight: 700; font-family: 'Nunito', sans-serif;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
             flex-shrink: 0;
@@ -370,17 +370,17 @@
         .rb-counter-btn.orange { background: rgba(255,159,10,0.15); color: #ff9f0a; }
         .rb-counter-btn:active { transform: scale(0.82); }
         .rb-counter-input {
-            width: 52px; text-align: center; padding: 6px 4px;
-            border: 1.5px solid rgba(26,127,255,0.18); border-radius: 10px;
-            font-weight: 900; font-size: 15px; color: #1a7fff;
-            background: #fff; font-family: 'Nunito', sans-serif;
+            width: 44px; text-align: center; padding: 5px 2px;
+            border: 1.5px solid rgba(26,127,255,0.18); border-radius: 8px;
+            font-weight: 900; font-size: 14px; color: #1a7fff;
+            background: #fff; font-family: 'Nunito', sans-serif; height: 28px;
         }
         .rb-counter-input.orange { color: #ff9f0a; border-color: rgba(255,159,10,0.25); }
         .rb-save-mini {
-            background: #1a7fff; color: #fff; border: none; border-radius: 10px;
-            padding: 7px 13px; font-size: 12px; font-weight: 800;
+            background: #1a7fff; color: #fff; border: none; border-radius: 8px;
+            padding: 0 12px; font-size: 12px; font-weight: 800; height: 28px;
             font-family: 'Nunito', sans-serif; cursor: pointer;
-            transition: all 0.25s; flex-shrink: 0;
+            transition: all 0.25s; flex-shrink: 0; white-space: nowrap;
         }
         .rb-save-mini:active { transform: scale(0.9); opacity: 0.85; }
         .rb-save-mini.orange { background: #ff9f0a; }
@@ -401,13 +401,13 @@
         }
         .rb-cn-row {
             display: flex; align-items: center; gap: 8px;
-            padding: 10px 14px; border-bottom: 1px solid rgba(255,159,10,0.08); overflow: hidden;
+            padding: 7px 12px; border-bottom: 1px solid rgba(255,159,10,0.08); overflow: hidden;
         }
         .rb-cn-row:last-of-type { border-bottom: none; }
         .rb-cn-label { font-size: 12px; font-weight: 800; color: #e08500; white-space: nowrap; flex-shrink: 0; min-width: 44px; }
         .rb-cn-input {
-            width: 56px; text-align: center; padding: 6px 4px;
-            border: 1.5px solid rgba(255,159,10,0.3); border-radius: 10px;
+            width: 44px; text-align: center; padding: 4px 2px; height: 28px;
+            border: 1.5px solid rgba(255,159,10,0.3); border-radius: 8px;
             font-weight: 900; font-size: 14px; color: #e08500;
             background: rgba(255,255,255,0.8); font-family: 'Nunito', sans-serif;
         }
@@ -675,10 +675,10 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
         }
         .settings-row-input {
-            width: 120px; min-width: 0; padding: 8px 10px; border: 1.5px solid #e8eef8;
+            width: 100px; max-width: 100px; min-width: 0; padding: 7px 8px; border: 1.5px solid #e8eef8;
             border-radius: 10px; font-size: 13px; font-weight: 800;
             color: #1a7fff; background: #f7faff; font-family: 'Nunito', sans-serif;
-            text-align: right; flex-shrink: 0;
+            text-align: right; flex-shrink: 0; box-sizing: border-box;
         }
         .settings-row-input:focus { border-color: #1a7fff; background: #fff; outline: none; }
 
@@ -771,13 +771,13 @@
                 <div class="settings-body">
                     <div class="settings-row">
                         <span class="settings-row-icon">💼</span>
-                        <label class="settings-row-label">Lương cơ bản</label>
+                        <label class="settings-row-label">LCB:</label>
                         <input type="text" inputmode="numeric" id="luongCoBan" value="5.660.000"
                             class="settings-row-input" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()">
                     </div>
                     <div class="settings-row">
                         <span class="settings-row-icon">🎒</span>
-                        <label class="settings-row-label">Phụ cấp cố định</label>
+                        <label class="settings-row-label">PC:</label>
                         <input type="text" inputmode="numeric" id="phuCapInput" value="700.000"
                             class="settings-row-input" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()">
                     </div>
@@ -909,20 +909,16 @@
                             <input type="number" id="gioCN" value="0" min="0" step="0.5"
                                 class="rb-cn-input" oninput="tinhToanCN()">
                             <span class="rb-cn-unit">giờ</span>
-                            <div class="rb-cn-result">
-                                <span class="rb-cn-money" id="hienTienGioCN">0 ₫</span>
-                                <span class="rb-cn-formula" id="hienDonGiaCN">LCB÷24÷8+200k × 0 giờ</span>
-                            </div>
+                            <span class="rb-cn-money" id="hienTienGioCN" style="margin-left:auto;">0 ₫</span>
+                            <span id="hienDonGiaCN" style="display:none;"></span>
                         </div>
                         <div class="rb-cn-row">
                             <span class="rb-cn-label">PC CN</span>
                             <input type="number" id="ngayCN" value="0" min="0" step="1"
                                 class="rb-cn-input" oninput="tinhToanCN()">
                             <span class="rb-cn-unit">ngày</span>
-                            <div class="rb-cn-result">
-                                <span class="rb-cn-money" id="hienTienPCCN">0 ₫</span>
-                                <span class="rb-cn-formula" id="hienDonGiaPCCN">200k÷24 × 0 ngày</span>
-                            </div>
+                            <span class="rb-cn-money" id="hienTienPCCN" style="margin-left:auto;">0 ₫</span>
+                            <span id="hienDonGiaPCCN" style="display:none;"></span>
                         </div>
                         <div class="rb-cn-total">
                             <span class="rb-cn-total-label">☀️ Tổng TC Chủ Nhật</span>
