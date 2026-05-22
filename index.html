@@ -327,11 +327,12 @@
         .rb-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 11px 20px; border-bottom: 1px solid #f0f4fa;
+            overflow: hidden; gap: 8px;
         }
         .rb-row:last-child { border-bottom: none; }
-        .rb-row-label { font-size: 14px; color: #5a7a9a; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+        .rb-row-label { font-size: 13px; color: #5a7a9a; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
         .rb-row-label .rb-icon { font-size: 16px; }
-        .rb-row-val { font-size: 14px; font-weight: 800; color: #1a2a3a; }
+        .rb-row-val { font-size: 13px; font-weight: 800; color: #1a2a3a; white-space: nowrap; flex-shrink: 0; }
         .rb-row-val.minus { color: #ff3b5c; }
         .rb-row-val.plus { color: #27c96a; }
         .rb-row-val.blue { color: #1a7fff; }
@@ -345,16 +346,16 @@
         .rb-section-title {
             padding: 10px 20px 2px 20px;
             font-size: 11px; font-weight: 800; color: #aac0d8;
-            text-transform: uppercase; letter-spacing: 0.8px;
+            text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; overflow: hidden;
         }
 
         /* Input controls bên trong rb */
         .rb-ctrl-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 16px; background: #f7faff; border-radius: 14px;
-            margin: 4px 12px; gap: 10px;
+            padding: 10px 14px; background: #f7faff; border-radius: 14px;
+            margin: 4px 12px; gap: 10px; overflow: hidden;
         }
-        .rb-ctrl-label { font-size: 13px; font-weight: 800; color: #1a2a3a; flex: 1; }
+        .rb-ctrl-label { font-size: 13px; font-weight: 800; color: #1a2a3a; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         .rb-ctrl-label small { display: block; font-size: 11px; color: #aac0d8; font-weight: 600; margin-top: 1px; }
         .rb-counter-wrap { display: flex; align-items: center; gap: 8px; }
         .rb-counter-btn {
@@ -400,10 +401,10 @@
         }
         .rb-cn-row {
             display: flex; align-items: center; gap: 8px;
-            padding: 10px 14px; border-bottom: 1px solid rgba(255,159,10,0.08);
+            padding: 10px 14px; border-bottom: 1px solid rgba(255,159,10,0.08); overflow: hidden;
         }
         .rb-cn-row:last-of-type { border-bottom: none; }
-        .rb-cn-label { font-size: 12px; font-weight: 800; color: #e08500; min-width: 54px; }
+        .rb-cn-label { font-size: 12px; font-weight: 800; color: #e08500; white-space: nowrap; flex-shrink: 0; min-width: 44px; }
         .rb-cn-input {
             width: 56px; text-align: center; padding: 6px 4px;
             border: 1.5px solid rgba(255,159,10,0.3); border-radius: 10px;
@@ -412,16 +413,16 @@
         }
         .rb-cn-unit { font-size: 12px; color: #aac0d8; font-weight: 700; }
         .rb-cn-result { flex: 1; text-align: right; }
-        .rb-cn-money { font-size: 13px; font-weight: 900; color: #e08500; display: block; }
-        .rb-cn-formula { font-size: 10px; color: #c0a070; font-weight: 600; display: block; margin-top: 1px; }
+        .rb-cn-money { font-size: 12px; font-weight: 900; color: #e08500; display: block; white-space: nowrap; }
+        .rb-cn-formula { font-size: 10px; color: #c0a070; font-weight: 600; display: block; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .rb-cn-total {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 14px;
             background: rgba(255,159,10,0.08);
             border-top: 1px solid rgba(255,159,10,0.15);
         }
-        .rb-cn-total-label { font-size: 13px; font-weight: 800; color: #e08500; }
-        .rb-cn-total-val { font-size: 15px; font-weight: 900; color: #e08500; }
+        .rb-cn-total-label { font-size: 13px; font-weight: 800; color: #e08500; white-space: nowrap; }
+        .rb-cn-total-val { font-size: 15px; font-weight: 900; color: #e08500; white-space: nowrap; flex-shrink: 0; }
         .btn-save-cn-flat {
             display: block; width: calc(100% - 24px); margin: 8px 12px 12px 12px;
             padding: 13px; background: #ff9f0a; color: #fff;
@@ -440,8 +441,8 @@
             background: linear-gradient(135deg, #f0f7ff, #e8f2ff);
             border-top: 2px solid rgba(26,127,255,0.12);
         }
-        .rb-total-label { font-size: 13px; font-weight: 900; color: #1a7fff; text-transform: uppercase; letter-spacing: 0.5px; }
-        .rb-total-val { font-size: 24px; font-weight: 900; color: #1a7fff; letter-spacing: -0.5px; }
+        .rb-total-label { font-size: 13px; font-weight: 900; color: #1a7fff; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .rb-total-val { font-size: 22px; font-weight: 900; color: #1a7fff; letter-spacing: -0.5px; white-space: nowrap; flex-shrink: 0; }
 
         /* Legacy compat (các tab khác vẫn dùng) */
         .highlight { font-size: 16px; font-weight: 800 !important; border-top: 1px solid rgba(26,127,255,0.1); padding-top: 14px; margin-top: 14px; white-space: nowrap; }
@@ -640,27 +641,42 @@
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(26,127,255,0.06);
         }
-        .ot-month-info { font-size: 15px; font-weight: 800; color: #1a2a3a; }
-        .ot-month-info span { font-size: 12px; color: var(--text-sub); font-weight: 600; display: block; margin-top: 2px; }
+        .ot-month-info { font-size: 14px; font-weight: 800; color: #1a2a3a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+        .ot-month-info span { font-size: 12px; color: var(--text-sub); font-weight: 600; display: block; margin-top: 2px; white-space: nowrap; }
 
-        /* Flat settings card */
-        .settings-card {
-            background: #fff; border-radius: 16px; padding: 0;
+        /* Settings collapsible */
+        .settings-details {
+            background: #fff; border-radius: 16px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(26,127,255,0.04);
             overflow: hidden; margin-bottom: 12px;
         }
+        .settings-summary {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px; cursor: pointer; list-style: none;
+            font-size: 14px; font-weight: 800; color: #1a2a3a;
+            white-space: nowrap; overflow: hidden;
+        }
+        .settings-summary::-webkit-details-marker { display: none; }
+        .settings-summary-left { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+        .settings-summary-left span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .settings-summary-arrow {
+            font-size: 20px; color: #aac0d8; transition: transform 0.3s; flex-shrink: 0; margin-left: 8px;
+        }
+        .settings-details[open] .settings-summary-arrow { transform: rotate(90deg); }
+        .settings-body { border-top: 1px solid #f0f4fa; }
         .settings-row {
-            display: flex; align-items: center; padding: 14px 16px;
-            border-bottom: 1px solid #f0f4fa; gap: 12px;
+            display: flex; align-items: center; padding: 12px 14px;
+            border-bottom: 1px solid #f0f4fa; gap: 10px; overflow: hidden;
         }
         .settings-row:last-child { border-bottom: none; }
-        .settings-row-icon { font-size: 20px; flex-shrink: 0; }
-        .settings-row-text { flex: 1; }
-        .settings-row-text label { font-size: 13px; font-weight: 800; color: #1a2a3a; display: block; }
-        .settings-row-text small { font-size: 11px; color: #aac0d8; font-weight: 600; }
+        .settings-row-icon { font-size: 18px; flex-shrink: 0; }
+        .settings-row-label {
+            flex: 1; font-size: 13px; font-weight: 700; color: #1a2a3a;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+        }
         .settings-row-input {
-            width: 130px; padding: 9px 12px; border: 1.5px solid #e8eef8;
-            border-radius: 10px; font-size: 14px; font-weight: 800;
+            width: 120px; min-width: 0; padding: 8px 10px; border: 1.5px solid #e8eef8;
+            border-radius: 10px; font-size: 13px; font-weight: 800;
             color: #1a7fff; background: #f7faff; font-family: 'Nunito', sans-serif;
             text-align: right; flex-shrink: 0;
         }
@@ -747,29 +763,29 @@
         <div id="tab-luong" class="tab-content active">
 
             <!-- ── CÀI ĐẶT ── -->
-            <div class="settings-card">
-                <div class="settings-row">
-                    <span class="settings-row-icon">💼</span>
-                    <div class="settings-row-text">
-                        <label>Lương cơ bản</label>
-                        <small>Lương tháng trước khấu trừ</small>
+            <details class="settings-details">
+                <summary class="settings-summary">
+                    <span class="settings-summary-left">⚙️ <span>Cài đặt lương & phụ cấp</span></span>
+                    <span class="settings-summary-arrow">›</span>
+                </summary>
+                <div class="settings-body">
+                    <div class="settings-row">
+                        <span class="settings-row-icon">💼</span>
+                        <label class="settings-row-label">Lương cơ bản</label>
+                        <input type="text" inputmode="numeric" id="luongCoBan" value="5.660.000"
+                            class="settings-row-input" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()">
                     </div>
-                    <input type="text" inputmode="numeric" id="luongCoBan" value="5.660.000"
-                        class="settings-row-input" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()">
-                </div>
-                <div class="settings-row">
-                    <span class="settings-row-icon">🎒</span>
-                    <div class="settings-row-text">
-                        <label>Phụ cấp cố định</label>
-                        <small>Xăng, trọ, công cán...</small>
+                    <div class="settings-row">
+                        <span class="settings-row-icon">🎒</span>
+                        <label class="settings-row-label">Phụ cấp cố định</label>
+                        <input type="text" inputmode="numeric" id="phuCapInput" value="700.000"
+                            class="settings-row-input" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()">
                     </div>
-                    <input type="text" inputmode="numeric" id="phuCapInput" value="700.000"
-                        class="settings-row-input" oninput="dinhDangNhapLieu(this); tinhToanTrucTiep()">
+                    <div style="padding: 4px 14px 14px 14px;">
+                        <button class="rb-save-mini" onclick="luuCaiDatLuong()" style="width:100%; border-radius:12px; padding:12px; font-size:14px;">💾 Lưu cài đặt</button>
+                    </div>
                 </div>
-                <div class="settings-row" style="justify-content:flex-end; border-bottom:none; padding-top:8px;">
-                    <button class="rb-save-mini" onclick="luuCaiDatLuong()" style="width:100%; border-radius:12px; padding:12px;">💾 Lưu cài đặt</button>
-                </div>
-            </div>
+            </details>
 
             <!-- ── BANNER THÁNG ── -->
             <div id="otMonthBanner" class="ot-month-header" style="margin-bottom:12px;">
