@@ -948,7 +948,48 @@
         .ai-chat-bubble {
             z-index: 100002 !important; /* Đẩy chú robot/nút đóng X lên mức 100.002 để luôn nằm trên cùng bộ ba */
         }
+      
+        /* ===== BẢNG THÔNG BÁO CHÀO MƯỜNG KÍNH MỜ THEO GIỜ VIP ===== */
+        .welcome-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); /* Hiệu ứng làm mờ nhòe trang sau chuẩn Apple */
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200005 !important; /* Đẩy nổi lên trên cùng tuyệt đối kể cả khung chat */
+            opacity: 0; pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .welcome-overlay.show { opacity: 1; pointer-events: auto; }
         
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.92);
+            width: calc(100% - 48px); max-width: 330px;
+            border-radius: 28px; padding: 26px 24px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+            transform: scale(0.85) translateY(20px);
+            transition: all 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng nảy lò xo khi mở */
+            box-sizing: border-box;
+        }
+        .welcome-overlay.show .welcome-card { transform: scale(1) translateY(0); }
+        
+        .welcome-icon-wrap {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(135deg, #ff9f0a, #ff4757);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px; color: white;
+            box-shadow: 0 8px 20px rgba(255,159,10,0.3);
+        }
+        .welcome-title { font-size: 15px; font-weight: 900; color: #1e293b; margin-bottom: 12px; letter-spacing: 0.3px; }
+        .welcome-text { font-size: 13px; font-weight: 700; color: #475569; line-height: 1.5; margin-bottom: 22px; text-align: left; }
+        .welcome-btn {
+            width: 100%; background: linear-gradient(135deg, #1a7fff, #0057d9);
+            color: white; border: none; padding: 13px; border-radius: 50px;
+            font-weight: 800; font-size: 14px; cursor: pointer;
+            box-shadow: 0 6px 16px rgba(26,127,255,0.25); transition: transform 0.1s;
+        }
+        .welcome-btn:active { transform: scale(0.96); }
+                
 
 </style>
 </head>
@@ -1515,6 +1556,17 @@
             
                     <div class="ai-chat-backdrop" id="aiChatBackdrop" onclick="toggleKhungChatAI()"></div>
                     
+                            <div class="welcome-overlay" id="welcomeOverlay">
+            <div class="welcome-card">
+                <div class="welcome-icon-wrap">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                </div>
+                <div class="welcome-title" id="welcomeBoardTitle">ĐANG KẾT NỐI...</div>
+                <div class="welcome-text" id="welcomeBoardText">Đang đồng bộ đồng hồ hệ thống của Tú Trinh...</div>
+                <button class="welcome-btn" onclick="dongBangThongBaoChaoMung()">Dạ em cảm ơn! ❤️</button>
+            </div>
+        </div>
+        
 
     </div><!-- end main-app -->
 
@@ -1730,11 +1782,22 @@
                 tuTrinhAlert("Lỗi Redirect: " + err.message);
             });
         }
+                            // ===== HỆ THỐNG KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP & BẬT THÔNG BÁO THEO GIỜ THỰC =====
         auth.onAuthStateChanged(user => {
             if(user) {
                 myKey = user.uid;
+                
+                // 1. Mở màn hình ứng dụng chính và ẩn màn hình đăng nhập đi
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                
+                // 2. KÍCH HOẠT TỰ ĐỘNG BẢNG CHÀO MỪNG THEO GIỜ THỰC (ĐẬP TAN LỖI TRỐNG LỆNH) 🎉
+                kichHoatThongBaoTheoGio();
+                
+                // 3. Tải dữ liệu sổ sách tiền nong về máy Trinh
                 taiDuLieuTuMay();
             } else {
+                // Trạng thái chưa đăng nhập hoặc bấm đăng xuất
                 document.getElementById('login-loader').style.display = 'none';
                 document.getElementById('btn-login-google').style.display = 'flex';
                 document.getElementById('login-msg').innerText = "Quản Lý Tài Chính Thông Minh Của Bạn";
@@ -2886,6 +2949,48 @@
         });
     });
     
+     // ===== BỘ NÃO ĐỒNG HỒ SINH HỌC: TỰ ĐỘNG BẬT THÔNG BÁO CHÀO TÚ TRINH THEO GIỜ THỰC =====
+    function kichHoatThongBaoTheoGio() {
+        const overlay = document.getElementById('welcomeOverlay');
+        const bTitle = document.getElementById('welcomeBoardTitle');
+        const bText = document.getElementById('welcomeBoardText');
+        if(!overlay || !bTitle || !bText) return;
+
+        const n = new Date();
+        const gio = n.getHours();
+        const phut = String(n.getMinutes()).padStart(2, '0');
+        const gioThat = `${gio}:${phut}`; // Lấy thời gian thật trên điện thoại, ví dụ: 21:05 hoặc 19:30
+
+        let tieuDe = "";
+        let noiDung = "";
+
+        if (gio >= 5 && gio < 11) {
+            tieuDe = "☀️ CHÀO BUỔI SÁNG NĂNG LƯỢNG!";
+            noiDung = `Chào Tú Trinh tràn đầy năng lượng! ✨ Hôm nay đi làm sớm vậy nè (${gioThat}), chúc Trinh một ngày làm việc thật vui vẻ, chấm công suôn sẻ và gặp nhiều may mắn nha! Cố lên Trinh ơi! 💪`;
+        } else if (gio >= 11 && gio < 14) {
+            tieuDe = "🍱 ĐẾN GIỜ NGHỈ TRƯA RỒI!";
+            noiDung = `Tú Trinh ơi đến giờ nghỉ trưa rồi nè (${gioThat})! 🍱 Trinh đã ăn cơm trưa ngon miệng chưa? Trưa nắng nóng nghỉ ngơi tí xíu, uống ly trà sữa cho mát rồi chiều cày tiếp nha Trinh! 🥤`;
+        } else if (gio >= 14 && gio < 18) {
+            tieuDe = "🌇 CHIỀU RỒI, RÀ SOÁT SỔ SÁCH THÔI!";
+            noiDung = `Chào buổi chiều Tú Trinh! Sắp hết giờ làm việc hành chính rồi (${gioThat}), Trinh kiểm tra xem hôm nay có lịch tăng ca không để lát nữa mình chuẩn bị nhảy số cộng dồn giờ lương nha! ✨`;
+        } else {
+            // Trường hợp buổi tối và đêm (Từ 18h tối đến trước 5h sáng hôm sau)
+            tieuDe = "🌌 TÚ TRINH XINH ĐẸP ƠI...";
+            noiDung = `Chào Tú Trinh xinh đẹp, hôm nay tăng ca về trễ vậy <b style="color:#0057d9; font-size:14px;">[${gioThat}]</b> tối lắm rồi có mệt lắm không Trinh! Kêu Phục bóp chân, đấm lưng cho Trinh nghe!! 😊❤️`;
+        }
+
+        bTitle.innerHTML = tieuDe;
+        bText.innerHTML = noiDung;
+        
+        // Kích hoạt làm mờ trang nền và đẩy bảng thông báo nảy lên màn hình
+        overlay.classList.add('show');
+    }
+
+    function dongBangThongBaoChaoMung() {
+        const overlay = document.getElementById('welcomeOverlay');
+        if(overlay) overlay.classList.remove('show');
+    }
+
        
 </script>
 
