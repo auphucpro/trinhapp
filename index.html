@@ -980,7 +980,17 @@
             margin: 0 auto 16px; color: white;
             box-shadow: 0 8px 20px rgba(255,159,10,0.3);
         }
-        .welcome-title { font-size: 15px; font-weight: 900; color: #1e293b; margin-bottom: 12px; letter-spacing: 0.3px; }
+                .welcome-title { 
+            font-size: 15px; 
+            font-weight: 900; 
+            color: #1e293b; 
+            margin-bottom: 12px; 
+            letter-spacing: 0.3px;
+            /* 🚀 BỘ BA PHONG TỎA TUYỆT ĐỐI KHÔNG CHO XUỐNG HÀNG */
+            white-space: nowrap;       /* Ép chữ xếp hàng ngang, cấm nhảy xuống hàng thứ 2 */
+            overflow: hidden;          /* Giấu phần chữ bị thừa đi nếu tên quá dài */
+            text-overflow: ellipsis;   /* Tự động điền dấu 3 chấm (...) tinh tế ở cuối dòng */
+        }
         .welcome-text { font-size: 13px; font-weight: 700; color: #475569; line-height: 1.5; margin-bottom: 22px; text-align: left; }
         .welcome-btn {
             width: 100%; background: linear-gradient(135deg, #1a7fff, #0057d9);
