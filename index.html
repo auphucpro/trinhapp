@@ -919,26 +919,34 @@
             border-top: 5px solid rgba(26,127,255,0.3);
         }
                         
-        /* ===== LỚP PHỦ MỜ KÍNH LOCK TRANG NỀN KHI CHAT CHUẨN UX ===== */
+                /* ===== LỚP PHỦ MỜ KÍNH LOCK TRANG NỀN KHI CHAT CHUẨN UX ===== */
         body.ai-chat-open {
-            overflow: hidden !important; /* Khóa cứng toàn bộ cơ thể trang nền không cho lướt lên xuống */
+            overflow: hidden !important; /* Khóa cứng toàn bộ trang nền không cho lướt */
         }
         
         .ai-chat-backdrop {
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.25); /* Tạo một tầng sương tối nhẹ che bớt số liệu */
-            backdrop-filter: blur(8px); /* Phủ hiệu ứng mờ kính ảo diệu Apple Intelligence */
+            background: rgba(0, 0, 0, 0.25); /* Tạo màng sương tối nhẹ che bớt số liệu */
+            backdrop-filter: blur(8px); /* Phủ hiệu ứng mờ kính Apple Intelligence */
             -webkit-backdrop-filter: blur(8px);
-            z-index: 9997; /* Nằm dưới khung cửa sổ chat (9998) nhưng nằm đè lên ứng dụng chính */
+            z-index: 100000 !important; /* Đẩy lên mức 100.000 để đè bẹp hoàn toàn mức 9999 của thanh Tab Menu */
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .ai-chat-backdrop.show {
             opacity: 1;
-            pointer-events: auto; /* Cho phép kích hoạt chạm (để bấm vô vùng mờ tự đóng chat) */
+            pointer-events: auto;
+        }
+
+        /* 👑 ĐÈ BẸP ĐA TẦNG: Ép cửa sổ chat và nút bong bóng nhảy lên tầng cao nhất */
+        .ai-chat-window {
+            z-index: 100001 !important; /* Đẩy cửa sổ chat lên mức 100.001 để nổi lên trên tấm màn mờ */
+        }
+        .ai-chat-bubble {
+            z-index: 100002 !important; /* Đẩy chú robot/nút đóng X lên mức 100.002 để luôn nằm trên cùng bộ ba */
         }
         
 
