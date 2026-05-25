@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TÚ TRINH NGUYỄN - Quản Lý Tài Chính</title>
     <link rel="icon" href="./logo.png" type="image/png">
     <link rel="apple-touch-icon" href="./logo.png">
@@ -82,9 +82,10 @@
         }
 
         /* ===== HEADER & FOOTER KÍNH MỜ ===== */
-        .header {
+                .header {
             background: transparent;
-            padding: 12px 16px 10px 16px;
+            /* Tự động cộng thêm khoảng trống an toàn chống tràn lên thanh trạng thái hệ thống */
+            padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 10px 16px;
             position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 100;
             display: flex; justify-content: space-between; align-items: center;
             gap: 10px;
@@ -855,8 +856,8 @@
 
                                 /* ===== TABS NỔI BẬT LƯƠNG - PHONG TỎA TUYỆT ĐỐI ÉP ĐỨNG IM PHĂNG PHẮC ===== */
         .tab-menu {
-            position: fixed !important;
-            top: 66px;
+                        position: fixed !important;
+            top: calc(66px + env(safe-area-inset-top, 0px));
             left: 50%;
             transform: translateX(-50%);
             width: calc(100% - 32px);
@@ -1000,13 +1001,71 @@
             font-weight: 800; font-size: 14px; cursor: pointer;
             box-shadow: 0 6px 16px rgba(26,127,255,0.25); transition: transform 0.1s;
         }
-        .welcome-btn:active { transform: scale(0.96); }
+                .welcome-btn:active { transform: scale(0.96); }
                 
-
+        /* ===== MÀN HÌNH CHÀO PREMIUM SPLASH SCREEN ===== */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+            z-index: 9999999 !important; /* Đảm bảo đè lên toàn bộ các lớp khác */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
+        }
+        .splash-logo-wrap {
+            position: relative;
+            margin-bottom: 20px;
+            animation: splashPulse 2.2s infinite ease-in-out;
+        }
+        .splash-logo {
+            width: 110px; height: 110px;
+            object-fit: contain;
+            border-radius: 26px;
+            box-shadow: 0 16px 40px rgba(26,127,255,0.22);
+        }
+        .splash-loader {
+            width: 140px; height: 4px;
+            background: rgba(26,127,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        .splash-loader-bar {
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, #1a7fff, #0057d9);
+            transform: translateX(-100%);
+            animation: splashLoading 1.6s infinite ease-in-out;
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 10px rgba(26,127,255,0.15)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 16px 32px rgba(26,127,255,0.35)); }
+        }
+        @keyframes splashLoading {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(0); }
+            100% { transform: translateX(100%); }
+        }
 </style>
 </head>
 <body>
+
+<div id="splash-screen">
+    <div class="splash-logo-wrap">
+        <img src="./logo.png" alt="Logo" class="splash-logo" onerror="this.style.display='none'">
+    </div>
+         <h1 style="background:linear-gradient(135deg,#1a7fff,#0057d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:900; margin:0 0 4px 0; font-size:26px; letter-spacing:-0.5px; line-height:1.4; padding-top:6px; padding-bottom:2px;">TÚ TRINH NGUYỄN</h1>
+    <p style="font-style:italic; margin:0; color:var(--text-sub); font-size:13px; font-weight:700;">Quản Lý Tài Chính Một Lần Vuốt Chạm</p>
+    <div class="splash-loader">
+        <div class="splash-loader-bar"></div>
+    </div>
+</div>
+
 <div class="app-container">
+
 
     <!-- LOGIN -->
     <div id="login-screen">
@@ -1564,8 +1623,7 @@
                 </button>
             </div>
         </div>
-           <div id="aiContextBubble" class="ai-context-bubble"></div>
-            
+                     
                     <div class="ai-chat-backdrop" id="aiChatBackdrop" onclick="toggleKhungChatAI()"></div>
                     
                             <div class="welcome-overlay" id="welcomeOverlay">
@@ -1769,8 +1827,17 @@
         });
     }
 
-    // ===== AUTH =====
+        // ===== AUTH =====
     window.onload = () => {
+        // 🚀 HIỆU ỨNG TẮT SPLASH SCREEN MƯỢT MÀ SAU 2.2 GIÂY KHI MỌI THỨ ĐÃ SẴN SÀNG
+        setTimeout(() => {
+            const ss = document.getElementById('splash-screen');
+            if (ss) {
+                ss.style.opacity = '0';
+                ss.style.visibility = 'hidden';
+                setTimeout(() => ss.remove(), 500); // Xóa hẳn khỏi cấu trúc DOM chống nặng máy
+            }
+        }, 2200);
         let today = new Date().toISOString().split('T')[0];
         ['ngayOT','ngayDongHui','ngayThu','ngayChi'].forEach(id => document.getElementById(id).value = today);
         // Ép tất cả các ô lịch hiển thị tiếng Việt và chặn lịch mặc định của máy
@@ -1795,7 +1862,7 @@
             });
         }
                             // ===== HỆ THỐNG KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP & BẬT THÔNG BÁO THEO GIỜ THỰC =====
-        auth.onAuthStateChanged(user => {
+                auth.onAuthStateChanged(user => {
             if(user) {
                 myKey = user.uid;
                 
@@ -1803,39 +1870,88 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 
-                // 2. KÍCH HOẠT TỰ ĐỘNG BẢNG CHÀO MỪNG THEO GIỜ THỰC (ĐẬP TAN LỖI TRỐNG LỆNH) 🎉
+                // 2. KÍCH HOẠT TỰ ĐỘNG BẢNG CHÀO MỪNG THEO GIỜ THỰC
                 kichHoatThongBaoTheoGio();
                 
                 // 3. Tải dữ liệu sổ sách tiền nong về máy Trinh
                 taiDuLieuTuMay();
             } else {
-                // Trạng thái chưa đăng nhập hoặc bấm đăng xuất
+                // 🛡️ MẮT THẦN THÔNG MINH: Xử lý mượt mà trạng thái xác thực trên file APK Android
+                if (typeof Android !== 'undefined') {
+                    // Trường hợp 1: Nếu tầng phần cứng Android Studio đã xử lý đăng nhập thành công và mở màn hình chính
+                    // -> Ép khóa cứng, cấm tuyệt đối không cho mã Web tự ý đá Tú Trinh ra ngoài màn hình Login
+                    if (document.getElementById('main-app').style.display === 'block') {
+                        return;
+                    }
+                    // Trường hợp 2: Nếu máy chưa đăng nhập (hoặc Trinh chủ động bấm Đăng xuất)
+                    // -> Lập tức tắt vòng quay loader và giải phóng hiển thị nút Google để Trinh bấm, triệt tiêu lỗi treo màn hình!
+                    document.getElementById('login-loader').style.display = 'none';
+                    document.getElementById('btn-login-google').style.display = 'flex';
+                    document.getElementById('login-msg').innerText = "Quản Lý Tài Chỉ Một Lần Vuốt Chạm";
+                    return;
+                }
+
+                // Cơ chế phòng hờ khi chạy trên trình duyệt Web máy tính thông thường
                 document.getElementById('login-loader').style.display = 'none';
                 document.getElementById('btn-login-google').style.display = 'flex';
-                document.getElementById('login-msg').innerText = "Quản Lý Tài Chính Thông Minh Của Bạn";
+                document.getElementById('login-msg').innerText = "Quản Lý Tài Chính Một Lần Vuốt Chạm";
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('main-app').style.display = 'none';
             }
         });
     };
 
-    function xuLyDangNhapGoogle() {
-        document.getElementById('btn-login-google').style.display = 'none';
-        document.getElementById('login-loader').style.display = 'block';
-        document.getElementById('login-msg').innerText = "Đang kết nối...";
-        auth.signInWithPopup(provider).catch(err => {
-            if(err.code==='auth/popup-blocked'||err.code==='auth/popup-closed-by-user') {
-                auth.signInWithRedirect(provider);
-            } else {
-                document.getElementById('login-loader').style.display = 'none';
-                document.getElementById('btn-login-google').style.display = 'flex';
-                tuTrinhAlert("Lỗi: " + err.message);
-            }
-        });
+
+        function xuLyDangNhapGoogle() {
+        // Kiểm tra xem có đang chạy trong môi trường file APK ứng dụng Android không
+        if (typeof Android !== 'undefined' && Android.triggerGoogleLogin) {
+            document.getElementById('btn-login-google').style.display = 'none';
+            document.getElementById('login-loader').style.display = 'block';
+            document.getElementById('login-msg').innerText = "Đang kích hoạt tài khoản Google điện thoại...";
+            
+            // Phát lệnh Native lên phần cứng Android Studio mở bảng chọn Gmail hệ thống
+            Android.triggerGoogleLogin(); 
+        } else {
+            // Nếu mở bằng trình duyệt web thường thì chạy popup như cũ
+            document.getElementById('btn-login-google').style.display = 'none';
+            document.getElementById('login-loader').style.display = 'block';
+            document.getElementById('login-msg').innerText = "Đang kết nối web...";
+            auth.signInWithPopup(provider).catch(err => {
+                if(err.code==='auth/popup-blocked'||err.code==='auth/popup-closed-by-user') {
+                    auth.signInWithRedirect(provider);
+                } else {
+                    document.getElementById('login-loader').style.display = 'none';
+                    document.getElementById('btn-login-google').style.display = 'flex';
+                    tuTrinhAlert("Lỗi: " + err.message);
+                }
+            });
+        }
+    }
+
+    // 🌟 HÀM KỲ DIỆU: TIẾP NHẬN MÃ USER ID (UID) CŨ TỪ ANDROID STUDIO BẮN XUỐNG
+    function dangNhapThanhCongNative(uid) {
+        myKey = uid; // Nhận chuẩn xác ID để đồng bộ vĩnh viễn không mất một cắc dữ liệu cũ!
+        
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        
+        kichHoatThongBaoTheoGio(); // Bật bảng thông báo lời chào VIP
+        taiDuLieuTuMay(); // Kéo toàn bộ dữ liệu Lương, Hụi, Thu chi cũ về máy
     }
 
     async function dangXuatTaikhoan() {
-        if(await tuTrinhConfirm("Bạn có chắc chắn muốn đăng xuất?")) auth.signOut().then(()=>location.reload());
+        if(await tuTrinhConfirm("Tú Trinh ơi, Trinh có chắc chắn muốn đăng xuất không?")) {
+            // Phát tín hiệu ra lệnh cho Android xóa sạch phiên lưu tài khoản Native
+            if (typeof Android !== 'undefined' && Android.nativeLogout) {
+                Android.nativeLogout();
+            }
+            
+            if(auth) {
+                auth.signOut().then(() => location.reload());
+            } else {
+                location.reload();
+            }
+        }
     }
 
     function taiDuLieuTuMay() {
@@ -2750,217 +2866,7 @@
         setTimeout(capNhatLoiChaoMascot, 150);
     });    
        
-        // ===== HỆ THỐNG CẢM BIẾN HÀNH VI AI NGỮ CẢNH NGẪU NHIÊN & CHỐNG TRÀN BIÊN CHỮ =====
-    let aiBubbleTimeout = null; // Cầu chì thời gian kiểm soát tối cao, triệt tiêu lỗi mất chữ ở ô Hụi
-
-    function layCauNoiAITheoNguCảnh(id, value) {
-        if (!value.trim()) {
-            // KHO CÂU THOẠI NGẪU NHIÊN KHI Ô NHẬP ĐANG TRỐNG RỖNG (MỖI LẦN BẤM VÀO ĐỔI CÂU KHÁC)
-            const mucTrongNgauNhien = {
-                'luongCoBan': [
-                    "Trinh đang nhập Lương cơ bản đúng không? Gõ số vào xem sao nè! 💸",
-                    "Thu nhập cứng tháng này của Trinh là bao nhiêu gõ vô mình tính nha! 🏦",
-                    "Lương cứng cày cuốc mỗi tháng nằm ở ô này nè Tú Trinh ơi! 💎"
-                ],
-                'soGioOTNhanh': [
-                    "Hôm nay Trinh có tăng ca thêm tiếng nào không ta? Nhập vô liền! ⏰",
-                    "Ô tăng ca thường đây rồi! Hôm nay cày cuốc được mấy tiếng vậy Trinh? 🔥",
-                    "Có giờ tăng ca nào hôm nay hông Trinh ơi, mình gom tiền lương giúp nè! 💸"
-                ],
-                'soNgayCaDem': [
-                    "Tháng này Trinh có phải cày ca đêm hôm nào chưa nè? 🌌",
-                    "Ô nhập ca đêm hôm thức trắng đây rồi, Trinh gõ số vào xem sao! 🐼",
-                    "Có ngày cày đêm vất vả nào tháng này không Trinh gõ vào đây nhé! 🌙"
-                ],
-                'phuCapInput': [
-                    "Có khoản phụ cấp độc quyền nào tháng này không Trinh ơi? ✨",
-                    "Khoản trợ cấp hay tiền thưởng thêm nằm ở ô này nè Trinh! 🎁",
-                    "Trinh có được thưởng thêm khoản tiền nào hông, gõ vào đây nha! 💵"
-                ],
-                'gioCN': [
-                    "Trinh cày tăng ca ngày Chủ Nhật thì nhập ở đây nha! 👑",
-                    "Tăng ca ngày nghỉ Chủ Nhật được mấy tiếng rồi Trinh ơi? 🚀",
-                    "Có giờ làm ngày Chủ Nhật nào không gõ vô mình nhân đôi lương nha! 💰"
-                ],
-                'tenDuyHui': [
-                    "Dây hụi này Trinh đặt tên là gì cho dễ nhớ nè? 📝",
-                    "Gõ tên dây hụi phong thủy vào đây đi Tú Trinh ơi! 📊",
-                    "Trinh đang mở dây hụi tên gì đó, bật mí cho mình biết với! 🤫"
-                ],
-                'tienHui': [
-                    "Đóng một lượt bao nhiêu tiền hụi vậy Trinh ơi? 💰",
-                    "Mỗi kỳ đóng hụi hết bao nhiêu tiền Trinh gõ vô đây nha! 🏦",
-                    "Số tiền góp hụi định kỳ nằm ở ô này nè Trinh! 💸"
-                ],
-                'chuHui': [
-                    "Ai là người cầm cái dây hụi này thế Trinh? Có uy tín hông? 🤫",
-                    "Trinh giao tiền hụi cho ai cầm cán gõ tên họ vô đây nè! 🔒",
-                    "Chủ hụi tên gì đó Trinh, gõ vô để mình lập sổ theo dõi nha! 👁️"
-                ],
-                'soTienThuChi': [
-                    "Khoản thu chi này hết bao nhiêu tiền vậy Trinh? 💸",
-                    "Ví tiền biến động bao nhiêu gõ số vào mình trừ số dư nha! 🛒",
-                    "Trinh chi ra hay thu vào bao nhiêu tiền nằm ở ô này nè! 🏦"
-                ],
-                'noiDungGhiChu': [
-                    "Trinh đang muốn lưu lại note bí mật gì đó phải không? 🤐",
-                    "Có việc gì quan trọng cần note lại Trinh gõ vào đây nha! 📝",
-                    "Ghi chú vạn năng, Trinh muốn lưu nhớ chuyện gì nè? 💡"
-                ]
-            };
             
-            let mangCau = mucTrongNgauNhien[id] || ["Trinh đang chạm vào ô này đúng hông? Mình nhìn thấy nè! 👀"];
-            return mangCau[Math.floor(Math.random() * mangCau.length)];
-        }
-
-        let soTienFormat = isNaN(value) ? value : formatVND(Number(value));
-
-        // KHO CÂU THOẠI ĐỘNG THÔNG MINH KHI ĐÃ CÓ SỐ LIỆU (TỰ ĐỘNG ĐỊNH DẠNG VND ĐỌC VÀO)
-        if (id === 'luongCoBan') {
-            const cauLuong = [
-                `Lương gốc tận <b>${soTienFormat}</b> lận á! Trinh xuất sắc quá, ráng cày nha! 💪`,
-                `Thu nhập cứng <b>${soTienFormat}</b> ổn áp quá Trinh ơi, sắm đồ thôi nào! 💎`,
-                `Mức lương cơ bản vững vàng <b>${soTienFormat}</b>. Động lực đi làm đây rồi Trinh! 🚀`
-            ];
-            return cauLuong[Math.floor(Math.random() * cauLuong.length)];
-        }
-        if (id === 'soGioOTNhanh') {
-            const cauOT = [
-                `Trinh hôm nay cày thêm <b>${value} giờ</b> tăng ca hả? Giỏi quá mà chắc mệt lắm, nghỉ tay uống nước nha! 🥤`,
-                `Thêm <b>${value} tiếng</b> OT tăng thu nhập nè! Trinh chăm chỉ thế này ai làm lại nữa! 🔥`,
-                `Tăng ca miệt mài <b>${value} giờ</b>. Cuối tháng lãnh lúa rủng rỉnh nha Trinh! 💸`
-            ];
-            return cauOT[Math.floor(Math.random() * cauOT.length)];
-        }
-        if (id === 'soNgayCaDem') {
-            const cauDem = [
-                `Tận <b>${value} ngày</b> cày đêm thức trắng lận sao! Trinh ráng giữ sức khỏe, quầng thâm mắt kìa Trinh ơi! 🐼`,
-                `Cày đêm liên tục <b>${value} buổi</b> vất vả quá. Nhớ ăn uống bồi bổ nha Tú Trinh xinh đẹp! 🌌`,
-                `Đêm hôm cày cuốc <b>${value} ngày</b> mệt lắm đúng không? Thương Trinh ghê, cố lên nè! ❤️`
-            ];
-            return cauDem[Math.floor(Math.random() * cauDem.length)];
-        }
-        if (id === 'tenDuyHui') {
-            return `Dây hụi tên <b>"${value.toUpperCase()}"</b> nghe có vẻ phong thủy và may mắn lắm nè Trinh! 📊`;
-        }
-        if (id === 'tienHui') {
-            return `Đóng hụi một phát <b>${soTienFormat}</b> luôn! Gom cục tiền này cuối năm tha hồ sắm sửa nha Trinh! 🛍️`;
-        }
-        if (id === 'chuHui') {
-            return `Chủ hụi là <b>${value}</b> đúng không? Nhớ đòi tiền đúng ngày nha Trinh, hông cho ai quỵt đâu á! 🤫`;
-        }
-        if (id === 'soTienThuChi') {
-            return `Số tiền <b>${soTienFormat}</b> lận á! Tiền vào như nước hay ví đang chuẩn bị xẹp đây Trinh ơi? 💸`;
-        }
-        if (id === 'noiDungGhiChu') {
-            return `Ghi chú: <i>"${value}"</i>. Mình khóa bảo mật két sắt rồi, hông có ai đọc lén được note đâu! 🔒`;
-        }
-
-        return `Trinh đang nhập: <b>"${value}"</b> đúng không nè? Số liệu nhập vào rất chuẩn xác luôn! ✨`;
-    }
-
-    function dieuPhoiBongBongAI(element, noiDungText) {
-        const bubble = document.getElementById('aiContextBubble');
-        if (!bubble || !element) return;
-
-        // ⚡ BẺ GÃY HÀNG ĐỢI: Xóa sạch lệnh ẩn chữ của ô nhập cũ ngay lập tức, triệt tiêu lỗi mất chữ ở tab Hụi
-        clearTimeout(aiBubbleTimeout);
-
-        bubble.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:#1a7fff; flex-shrink:0;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> <span>${noiDungText}</span>`;
-        
-        const rect = element.getBoundingClientRect();
-        const vungCuonTop = window.scrollY || document.documentElement.scrollTop;
-        const viTriTop = rect.top + vungCuonTop - 38;
-        
-        // 🚀 THUẬT TOÁN LẬT BIÊN HÌNH HỌC: Chống dồn cục chữ ở tab Ghi Chú ngoài cùng bên phải
-        if (rect.left + 230 > window.innerWidth) {
-            // Nếu phần tử nằm quá sát biên phải màn hình di động -> Ép khung thoại giãn nở lùi sang bên trái
-            bubble.style.left = "auto";
-            bubble.style.right = (window.innerWidth - rect.right + 5) + "px";
-            // Đẩy cái đuôi nhọn pointer chạy về góc bên phải để chỉ đúng tâm ô nhập liệu
-            bubble.style.setProperty('--arrow-left', 'auto');
-            bubble.style.setProperty('--arrow-right', '20px');
-        } else {
-            // Trạng thái thông thường ở các tab bên trái hoặc giữa màn hình
-            bubble.style.left = `${rect.left + 5}px`;
-            bubble.style.right = "auto";
-            bubble.style.setProperty('--arrow-left', '20px');
-            bubble.style.setProperty('--arrow-right', 'auto');
-        }
-
-        bubble.style.top = `${viTriTop}px`;
-        bubble.classList.add('show');
-    }
-
-    function anBongBongAI() {
-        const bubble = document.getElementById('aiContextBubble');
-        if (bubble) bubble.classList.remove('show');
-    }
-
-        // ===== SỬA LỖI HẸN GIỜ: TỰ ĐỘNG TẮT CHỮ SAU 3 GIÂY KHI CHUYỂN TAB VÀ GIỮ NGUYÊN Ô NHẬP =====
-    const _gocChuyenTab = chuyenTab;
-    chuyenTab = function(tabId, btnEl) {
-        _gocChuyenTab(tabId, btnEl);
-        
-        if (btnEl) {
-            clearTimeout(aiBubbleTimeout); // Xóa sạch mọi bộ đếm cũ ngay giây phút bấm đổi tab
-            
-            const loiChaoTabNgauNhien = {
-                'tab-luong': [
-                    "Hôm nay công việc của Trinh thế nào? Tăng ca có mệt lắm không nè? 🥤",
-                    "Bảng lương tháng này nhảy số siêu đẹp rồi kìa Trinh ơi! Vào xem thử đi! 📈",
-                    "Lương bổng rạch ròi, Trinh vào kiểm tra thành quả cày cuốc tháng này đi nè! 💸"
-                ],
-                'tab-hui': [
-                    "Hôm nay Trinh có hốt hụi hay đóng thêm dây hụi mới nào hông ta? 📊",
-                    "Sổ hụi của Trinh đây rồi! Hôm nay đóng hụi cho ai hay gom tiền về túi nè? 💰",
-                    "Rà soát lại các dây hụi thôi Trinh ơi, tiền nong phải rõ ràng nha! 🤫"
-                ],
-                'tab-thuchi': [
-                    "Ví thu chi hôm nay có biến động gì lớn hông Trinh, mua sắm gì chưa? 🛍️",
-                    "Hôm nay Trinh có khoản thu khổng lồ nào hay vừa chốt đơn món gì à? 🛒",
-                    "Cập nhật ví chi tiêu đều đặn nha Trinh, cuối tháng không sợ thâm hụt nè! 🏦"
-                ],
-                'tab-ghichu': [
-                    "Trinh muốn ghi nhớ việc gì quan trọng à? Lưu hết vào đây nha! 📝",
-                    "Khu vực lưu note bí mật của Trinh đây rồi! Viết gì vào đây đi nè! 🔒",
-                    "Ghi chú vạn năng, việc gì cần nhớ Trinh cứ gõ hết vào đây cho mình! 💡"
-                ]
-            };
-            
-            let mangCauNoi = loiChaoTabNgauNhien[tabId] || ["Tú Trinh vừa chuyển sang tab mới nè! ✨"];
-            let cauNoi = mangCauNoi[Math.floor(Math.random() * mangCauNoi.length)];
-            
-            // Chạy lệnh hiển thị bong bóng thoại lên màn hình trước
-            setTimeout(() => { 
-                dieuPhoiBongBongAI(btnEl, cauNoi); 
-                
-                // 🔥 ĐẶT LỆNH TỰ HỦY ĐỘC QUYỀN CHO TAB: Đúng 3 giây (3000ms) sau khi hiện, chữ thoại sẽ tự tắt biến mất!
-                aiBubbleTimeout = setTimeout(anBongBongAI, 3000);
-            }, 60);
-        }
-    };
-
-    // ĐỒNG BỘ MẮT THẦN LẮNG NGHE Focus/Input TOÀN APP (HÀNH VI Ô NHẬP GIỮ NGUYÊN THEO Ý TRINH)
-    document.addEventListener('DOMContentLoaded', () => {
-        const vungNhapLieu = document.querySelectorAll('input, textarea, select');
-        vungNhapLieu.forEach(oNhap => {
-            // Khi Trinh chạm vào bất kỳ ô nhập liệu nào -> Hiện chữ AI và giữ nguyên không tự tắt
-            oNhap.addEventListener('focus', (e) => {
-                let cauNoi = layCauNoiAITheoNguCảnh(e.target.id, e.target.value);
-                dieuPhoiBongBongAI(e.target, cauNoi);
-            });
-            oNhap.addEventListener('input', (e) => {
-                let cauNoi = layCauNoiAITheoNguCảnh(e.target.id, e.target.value);
-                dieuPhoiBongBongAI(e.target, cauNoi);
-            });
-            // Nào Trinh bấm ra ngoài ô nhập (Blur) -> Chữ AI mới lập tức biến tắt đi sau 180ms
-            oNhap.addEventListener('blur', () => {
-                aiBubbleTimeout = setTimeout(anBongBongAI, 180);
-            });
-        });
-    });
-    
      // ===== BỘ NÃO ĐỒNG HỒ SINH HỌC: TỰ ĐỘNG BẬT THÔNG BÁO CHÀO TÚ TRINH THEO GIỜ THỰC =====
     function kichHoatThongBaoTheoGio() {
         const overlay = document.getElementById('welcomeOverlay');
