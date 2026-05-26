@@ -880,6 +880,11 @@
         .tab-content {
             margin-top: 50px !important; /* Tạo một khoảng trống đẩy nội dung xuống dưới lườn tab fixed */
         }
+                /* 🛡️ BIỆN PHÁP SỬA LỖI ĐÈ CHỮ CHO APK: Nếu phát hiện dấu bản quyền "is-apk", tăng khoảng cách đệm lên 82px để đẩy hẳn nội dung xuống dưới menu! */
+        body.is-apk .tab-content {
+            margin-top: 82px !important;
+        }
+       
 
 
         /* ===== BONG BÓNG THOẠI AI NGỮ CẢNH DI ĐỘNG CHỐNG DỒN CỤC CHỮ ===== */
@@ -1828,7 +1833,12 @@
     }
 
         // ===== AUTH =====
-    window.onload = () => {
+    window.onload = () => {        
+    // 🛡️ MẮT THẦN: Tự động phát hiện nếu đang chạy trên App APK thì đóng dấu bản quyền "is-apk" vào body
+        if (typeof Android !== 'undefined') {
+            document.body.classList.add('is-apk');
+        }
+        
         // 🚀 HIỆU ỨNG TẮT SPLASH SCREEN MƯỢT MÀ SAU 2.2 GIÂY KHI MỌI THỨ ĐÃ SẴN SÀNG
         setTimeout(() => {
             const ss = document.getElementById('splash-screen');
